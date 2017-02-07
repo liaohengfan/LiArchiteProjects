@@ -1,0 +1,34 @@
+*{
+    padding:0;
+    margin:0;
+    box-sizing: border-box;
+}
+html,body{
+    width:100%;
+    height:100%;
+}
+.container{
+    width:100%;
+    height:100%;
+    overflow: hidden;
+}
+.ui_container{
+    position: absolute;
+    left:0;
+    right:0;
+    z-index: 3;
+}
+
+.webgl_control{
+    width: 100%;
+    height:100%;
+    position: absolute;
+    left:0;
+    right:0;
+    z-index: 2;
+}
+
+.webgl_container{
+    width: 100%;
+    height:100%;
+}
