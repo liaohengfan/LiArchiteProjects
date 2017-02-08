@@ -10,6 +10,7 @@ var liaohengfan;
         var FOR = 60;
         var NEAR = 1;
         var FAER = 10000;
+        var PI2 = Math.PI * 2;
         /**     * 信息输出     */
         var msg = function (info_) {
             if (layui.layer) {
@@ -90,6 +91,35 @@ var liaohengfan;
             }
             /**         * 公共服务点         */
             ArchiteFloor.prototype.getPubPoint = function () {
+                var mesh_ = new THREE.Object3D();
+                //公共设施
+                if (this.floorData.PubPoint) {
+                    this.floorData.PubPoint = this.floorData.PubPoint || [];
+                    var y_z = this.floorData.High;
+                    y_z *= 10;
+                    //test
+                    /*var material_=new THREE.MeshBasicMaterial({
+                        color:0xFF0000
+                    });
+                    var geo_=new THREE.CubeGeometry(10,10,10);*/
+                    for (var i = 0; i < this.floorData.PubPoint.length; i++) {
+                        var point_ = this.floorData.PubPoint[i];
+                        var position_ = point_.Outline[0][0];
+                        var positionVec3 = new THREE.Vector3(position_[0] || 0, position_[1], y_z);
+                        //图标待确认
+                        var material_ = new THREE.SpriteMaterial({
+                            //map:texture_,
+                            map: new THREE.TextureLoader().load("asset/PublicPointIco/100002.png"),
+                            color: 0xFFFFFF
+                        });
+                        material_.sizeAttenuation = false;
+                        var sprite_ = new THREE.Sprite(material_);
+                        sprite_.scale.set(38, 38, 38);
+                        sprite_.position.copy(positionVec3);
+                        mesh_.add(sprite_);
+                    }
+                }
+                return mesh_;
             };
             /**         * 店面         */
             ArchiteFloor.prototype.getFuncAreasMesh = function () {
@@ -183,6 +213,8 @@ var liaohengfan;
                 this.camera = null;
                 this.scene = null;
                 this.curArchite = null;
+                this.labelScene = null;
+                this.labelCamera = null;
                 this.domContainer = dom_;
                 this.controlDom = controlDom_;
                 this.init();
@@ -196,6 +228,22 @@ var liaohengfan;
                 else {
                     this.renderer = new THREE.CanvasRenderer({ antialias: true });
                 }
+                this.createPerspective();
+                this.createOrthographic();
+                this.createLights();
+                this.renderer.setClearColor(0xf1f2f7);
+                this.renderer.setSize(V_WIDTH, V_HEIGHT);
+                this.renderer.autoClear = false;
+                /**         * 绑定渲染         */
+                this.domContainer.appendChild(this.renderer.domElement);
+            };
+            /**         * 创建正交投影相机 用于图标展示         */
+            ArchiteWebGL.prototype.createOrthographic = function () {
+                this.labelCamera = new THREE.OrthographicCamera(V_WIDTH / -2, V_WIDTH / 2, V_HEIGHT / 2, V_HEIGHT / -2, NEAR, FAER);
+                this.labelScene = new THREE.Scene();
+            };
+            /**         * 创建透视投影用于建筑展示         */
+            ArchiteWebGL.prototype.createPerspective = function () {
                 this.camera = new THREE.PerspectiveCamera(FOR, V_WIDTH / V_HEIGHT, NEAR, FAER);
                 this.camera.up.set(0, 1, 0);
                 this.camera.lookAt(new THREE.Vector3(0, 0, 0));
@@ -211,12 +259,8 @@ var liaohengfan;
                 control.update();
                 this.scene = new THREE.Scene();
                 this.scene.add(new THREE.AxisHelper(10000));
-                this.createLights();
-                this.renderer.setClearColor(0xf1f2f7);
-                this.renderer.setSize(V_WIDTH, V_HEIGHT);
-                /**         * 绑定渲染         */
-                this.domContainer.appendChild(this.renderer.domElement);
             };
+            /**         * 创建场景灯光         */
             ArchiteWebGL.prototype.createLights = function () {
                 var ambientLight_ = new THREE.AmbientLight(0xFFFFFF, .65);
                 this.scene.add(ambientLight_);
@@ -228,7 +272,11 @@ var liaohengfan;
             };
             /**         * 渲染         */
             ArchiteWebGL.prototype.render = function () {
+                this.labelCamera.position.copy(this.camera.position);
+                this.renderer.clear();
                 this.renderer.render(this.scene, this.camera);
+                this.renderer.render(this.labelScene, this.camera);
+                //this.renderer.render(this.labelScene,this.labelCamera);
             };
             /**         * 刷新地图数据         */
             ArchiteWebGL.prototype.updateMapByArchiteBase = function (archite_) {
@@ -237,10 +285,17 @@ var liaohengfan;
                         archite_.buildingOutLine.rotateX(-(Math.PI / 2));
                         this.scene.add(archite_.buildingOutLine);
                     }
+                    //楼层
                     var defaultFloor_ = archite_.getDefaultFoolr();
-                    var floorMesh_ = archite_.getFloorsMeshByID(defaultFloor_).getFuncAreasMesh();
-                    floorMesh_.rotateX(-(Math.PI / 2));
-                    this.scene.add(floorMesh_);
+                    var floorBase_ = archite_.getFloorsMeshByID(defaultFloor_);
+                    //店铺
+                    var floorFuncAreaMesh_ = floorBase_.getFuncAreasMesh();
+                    floorFuncAreaMesh_.rotateX(-(Math.PI / 2));
+                    this.scene.add(floorFuncAreaMesh_);
+                    //楼层公共设施
+                    var floorPublicPoints_ = floorBase_.getPubPoint();
+                    floorPublicPoints_.rotateX(-(Math.PI / 2));
+                    this.labelScene.add(floorPublicPoints_);
                 }
             };
             /**         * 窗口更改         */
@@ -248,6 +303,11 @@ var liaohengfan;
                 this.renderer.setSize(V_WIDTH, V_HEIGHT);
                 this.camera.aspect = V_WIDTH / V_HEIGHT;
                 this.camera.updateProjectionMatrix();
+                this.labelCamera.left = V_WIDTH / -2;
+                this.labelCamera.right = V_WIDTH / 2;
+                this.labelCamera.top = V_HEIGHT / 2;
+                this.labelCamera.bottom = V_HEIGHT / -2;
+                this.labelCamera.updateProjectionMatrix();
             };
             return ArchiteWebGL;
         }());
