@@ -5,6 +5,7 @@ var liaohengfan;
 (function (liaohengfan) {
     var LI_ARCHITE;
     (function (LI_ARCHITE) {
+        // change by 2017.02.09
         var V_WIDTH = 1280;
         var V_HEIGHT = 720;
         var FOR = 60;
@@ -78,6 +79,9 @@ var liaohengfan;
         /**     * 门店     */
         var ArchiteFuncArea = (function () {
             function ArchiteFuncArea(data_, high_, color_) {
+                this.archite_show = true;
+                this.archite_name = "";
+                this.archite_id = "";
                 this.mesh = null;
                 this.mesh = getDataMesh(data_, high_, color_);
             }
@@ -86,12 +90,26 @@ var liaohengfan;
         /**     * 楼层     */
         var ArchiteFloor = (function () {
             function ArchiteFloor(data_) {
+                this.archite_show = true;
+                this.archite_name = "";
+                this.archite_id = "";
                 this.floorData = null;
+                /**
+                 * 公共设施点
+                 * @type {any}
+                 */
+                this.PubPoints = null;
+                this.funcAreaMesh = null;
                 this.floorData = data_;
             }
             /**         * 公共服务点         */
-            ArchiteFloor.prototype.getPubPoint = function () {
-                var mesh_ = new THREE.Object3D();
+            ArchiteFloor.prototype.getPubPoints = function (enabled_) {
+                if (this.PubPoints) {
+                    this.PubPoints.visible = enabled_;
+                    return this.PubPoints;
+                }
+                this.PubPoints = new THREE.Object3D();
+                this.PubPoints.visible = enabled_;
                 //公共设施
                 if (this.floorData.PubPoint) {
                     this.floorData.PubPoint = this.floorData.PubPoint || [];
@@ -114,16 +132,19 @@ var liaohengfan;
                         });
                         material_.sizeAttenuation = false;
                         var sprite_ = new THREE.Sprite(material_);
-                        sprite_.scale.set(38, 38, 38);
+                        sprite_.scale.set(32, 32, 1);
                         sprite_.position.copy(positionVec3);
-                        mesh_.add(sprite_);
+                        this.PubPoints.add(sprite_);
                     }
                 }
-                return mesh_;
+                return this.PubPoints;
             };
             /**         * 店面         */
             ArchiteFloor.prototype.getFuncAreasMesh = function () {
-                var mesh_ = new THREE.Object3D();
+                //模型已经创建
+                if (this.funcAreaMesh)
+                    return this.funcAreaMesh;
+                this.funcAreaMesh = new THREE.Object3D();
                 //店面
                 if (this.floorData.FuncAreas) {
                     var funcareas_ = this.floorData.FuncAreas;
@@ -134,16 +155,19 @@ var liaohengfan;
                         var color_ = _.sample(colors_);
                         //创建门店
                         var funcarea_ = new ArchiteFuncArea(funcareas_[i], high_, color_);
-                        mesh_.add(funcarea_.mesh);
+                        this.funcAreaMesh.add(funcarea_.mesh);
                     }
                 }
-                return mesh_;
+                return this.funcAreaMesh;
             };
             return ArchiteFloor;
         }());
         /**     * 建筑基类     */
         var ArchiteBase = (function () {
             function ArchiteBase(data_, is3D_) {
+                this.archite_show = true;
+                this.archite_name = "";
+                this.archite_id = "";
                 this.is3D = true;
                 /**         * oriData         */
                 this.oriData = null;
@@ -153,17 +177,45 @@ var liaohengfan;
                 this.ArchiteOutLine = [];
                 /**         * 建筑id         */
                 this.ArchiteID = "";
+                /**         * 大厦模型         */
+                this.ArchiteMesh = null;
+                /**         * 标注         */
+                this.ArchiteSprite = null;
+                this.ArchiteIcon = null;
+                this.ArchiteLabel = null;
+                /**         * 楼层         */
+                this.architeFloors = [];
+                /**         * 轮廓模型         */
                 this.buildingOutLine = null;
+                this.buildingOutLineShow = false;
                 this.oriData = data_;
                 this.ArchiteName = this.oriData.building.Name;
                 this.ArchiteOutLine = this.oriData.building.Outline;
                 this.ArchiteID = this.oriData.building._id;
                 this.is3D = is3D_;
+                /**             * 创建大厦3D对象             */
+                this.ArchiteMesh = new THREE.Object3D();
+                /**             * 创建标注对象             */
+                this.ArchiteSprite = new THREE.Object3D();
+                this.ArchiteIcon = new THREE.Object3D();
+                this.ArchiteLabel = new THREE.Object3D();
+                this.ArchiteSprite.add(this.ArchiteIcon);
+                this.ArchiteSprite.add(this.ArchiteLabel);
+                /**             * 旋转             */
+                this.ArchiteMesh.rotateX(-(Math.PI / 2));
+                this.ArchiteSprite.rotateX(-(Math.PI / 2));
                 this.parseBuildingOutLine();
             }
             /**         * 解析建筑轮廓         */
             ArchiteBase.prototype.parseBuildingOutLine = function () {
                 this.buildingOutLine = getDataMesh(this.oriData.building);
+                this.buildingOutLine.visible = this.buildingOutLineShow;
+                this.ArchiteMesh.add(this.buildingOutLine);
+            };
+            /**         * 大厦轮廓展示         */
+            ArchiteBase.prototype.enabledBuildingOutLine = function (enabled_) {
+                this.buildingOutLine.visible = enabled_;
+                this.buildingOutLineShow = enabled_;
             };
             /**
              * 获取默认楼层
@@ -172,8 +224,45 @@ var liaohengfan;
             ArchiteBase.prototype.getDefaultFoolr = function () {
                 return this.oriData.building.DefaultFloor;
             };
-            /**         * 获取楼层模型         */
-            ArchiteBase.prototype.getFloorsMeshByID = function (floor_) {
+            /**         * 展示楼层模型         */
+            ArchiteBase.prototype.showFloorsMeshByID = function (floor_) {
+                var selectFloors = null;
+                selectFloors = _.findWhere(this.architeFloors, { archite_id: floor_ });
+                //对应楼层是否已创建
+                if (selectFloors) {
+                    //当前仅选中的楼层显示
+                    if (this.architeFloors.length == 1) {
+                        return;
+                    }
+                }
+                else {
+                    //不存在选择的模型，则创建
+                    selectFloors = this.createFloors(floor_);
+                    selectFloors.archite_id;
+                    selectFloors.archite_name;
+                    selectFloors.archite_show;
+                    this.architeFloors.push(selectFloors); //添加到已创建模型
+                    //展示模型
+                    this.ArchiteMesh.add(selectFloors.getFuncAreasMesh());
+                }
+            };
+            /**         * 楼层公共设施         */
+            ArchiteBase.prototype.enabledFloorsPubPoints = function (show_) {
+                //查询所有显示的楼层
+                var curShowFloors_ = _.where(this.architeFloors, { archite_show: true });
+                for (var i = 0; i < curShowFloors_.length; i++) {
+                    var obj = curShowFloors_[i];
+                    this.ArchiteIcon.add(obj.getPubPoints());
+                }
+            };
+            /**         * 楼层标注         */
+            ArchiteBase.prototype.enabledFloorsLabel = function (show_, type_) {
+            };
+            /**
+             * 创建对应模型
+             * @returns {liaohengfan.LI_ARCHITE.ArchiteFloor}
+             */
+            ArchiteBase.prototype.createFloors = function (floor_) {
                 var floorData_ = null;
                 /**             * 所有楼层             */
                 floorData_ = _.findWhere(this.oriData.Floors || [], { _id: floor_ });
@@ -183,12 +272,6 @@ var liaohengfan;
                 //创建楼层
                 var floor_ = new ArchiteFloor(floorData_);
                 return floor_;
-            };
-            /**         * 获取楼层标注         */
-            ArchiteBase.prototype.getFloorsLabel = function (floor_, type_) {
-            };
-            /**         * 获取楼层icon         */
-            ArchiteBase.prototype.getFloorsIcon = function () {
             };
             return ArchiteBase;
         }());
@@ -241,6 +324,13 @@ var liaohengfan;
             ArchiteWebGL.prototype.createOrthographic = function () {
                 this.labelCamera = new THREE.OrthographicCamera(V_WIDTH / -2, V_WIDTH / 2, V_HEIGHT / 2, V_HEIGHT / -2, NEAR, FAER);
                 this.labelScene = new THREE.Scene();
+                var control = new THREE.OrbitControls(this.labelCamera, this.controlDom);
+                control.maxPolarAngle = Math.PI / 3;
+                control.minPolarAngle = 0;
+                control.minDistance = 1;
+                control.maxDistance = Infinity;
+                control.enableKeys = false;
+                control.update();
             };
             /**         * 创建透视投影用于建筑展示         */
             ArchiteWebGL.prototype.createPerspective = function () {
@@ -273,29 +363,26 @@ var liaohengfan;
             /**         * 渲染         */
             ArchiteWebGL.prototype.render = function () {
                 this.labelCamera.position.copy(this.camera.position);
+                this.labelCamera.updateProjectionMatrix();
                 this.renderer.clear();
                 this.renderer.render(this.scene, this.camera);
+                //this.renderer.render(this.scene,this.labelCamera);
                 this.renderer.render(this.labelScene, this.camera);
                 //this.renderer.render(this.labelScene,this.labelCamera);
             };
             /**         * 刷新地图数据         */
             ArchiteWebGL.prototype.updateMapByArchiteBase = function (archite_) {
                 if (archite_) {
-                    if (archite_.buildingOutLine) {
-                        archite_.buildingOutLine.rotateX(-(Math.PI / 2));
-                        this.scene.add(archite_.buildingOutLine);
-                    }
-                    //楼层
-                    var defaultFloor_ = archite_.getDefaultFoolr();
-                    var floorBase_ = archite_.getFloorsMeshByID(defaultFloor_);
-                    //店铺
-                    var floorFuncAreaMesh_ = floorBase_.getFuncAreasMesh();
-                    floorFuncAreaMesh_.rotateX(-(Math.PI / 2));
-                    this.scene.add(floorFuncAreaMesh_);
-                    //楼层公共设施
-                    var floorPublicPoints_ = floorBase_.getPubPoint();
-                    floorPublicPoints_.rotateX(-(Math.PI / 2));
-                    this.labelScene.add(floorPublicPoints_);
+                    //将大厦模型添加到场景
+                    this.scene.add(archite_.ArchiteMesh);
+                    //将标注信息添加到场景
+                    this.labelScene.add(archite_.ArchiteSprite);
+                    //展示大厦轮廓
+                    archite_.enabledBuildingOutLine(true);
+                    //展示默认楼层
+                    archite_.showFloorsMeshByID(archite_.getDefaultFoolr());
+                    //显示楼层公共服务点
+                    archite_.enabledFloorsPubPoints(true);
                 }
             };
             /**         * 窗口更改         */

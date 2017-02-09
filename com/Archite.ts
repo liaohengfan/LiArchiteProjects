@@ -90,6 +90,9 @@ namespace liaohengfan.LI_ARCHITE{
         constructor(data_,high_,color_){
             this.mesh=getDataMesh(data_,high_,color_);
         }
+        archite_show=true;
+        archite_name="";
+        archite_id="";
         mesh=null;
     }
 
@@ -99,10 +102,27 @@ namespace liaohengfan.LI_ARCHITE{
         constructor(data_){
             this.floorData=data_;
         }
+        archite_show=true;
+        archite_name="";
+        archite_id="";
         floorData=null;
+
+        /**
+         * 公共设施点
+         * @type {any}
+         */
+        PubPoints=null;
+
         /**         * 公共服务点         */
-        getPubPoint(){
-            var mesh_=new THREE.Object3D();
+        getPubPoints(enabled_){
+
+            if(this.PubPoints){
+                this.PubPoints.visible=enabled_;
+                return this.PubPoints;
+            }
+
+            this.PubPoints=new THREE.Object3D();
+            this.PubPoints.visible=enabled_;
 
             //公共设施
             if(this.floorData.PubPoint){
@@ -130,21 +150,27 @@ namespace liaohengfan.LI_ARCHITE{
                     });
                     material_.sizeAttenuation=false;
                     var sprite_=new THREE.Sprite(material_);
-                    sprite_.scale.set(38,38,38);
+                    sprite_.scale.set(32,32,1);
                     sprite_.position.copy(positionVec3);
-                    mesh_.add(sprite_);
+                    this.PubPoints.add(sprite_);
 
 
                 }
             }
 
-            return mesh_;
+            return this.PubPoints;
 
         }
+
+        funcAreaMesh=null;
+
         /**         * 店面         */
         getFuncAreasMesh(){
 
-            var mesh_=new THREE.Object3D();
+            //模型已经创建
+            if(this.funcAreaMesh)return this.funcAreaMesh;
+
+            this.funcAreaMesh=new THREE.Object3D();
 
             //店面
             if(this.floorData.FuncAreas){
@@ -158,11 +184,11 @@ namespace liaohengfan.LI_ARCHITE{
 
                     //创建门店
                     var funcarea_ = new ArchiteFuncArea(funcareas_[i],high_,color_);
-                    mesh_.add(funcarea_.mesh);
+                    this.funcAreaMesh.add(funcarea_.mesh);
 
                 }
             }
-            return mesh_;
+            return this.funcAreaMesh;
         }
     }
 
@@ -174,8 +200,28 @@ namespace liaohengfan.LI_ARCHITE{
             this.ArchiteOutLine=this.oriData.building.Outline;
             this.ArchiteID=this.oriData.building._id;
             this.is3D=is3D_;
+
+            /**             * 创建大厦3D对象             */
+            this.ArchiteMesh=new THREE.Object3D();
+
+            /**             * 创建标注对象             */
+            this.ArchiteSprite=new THREE.Object3D();
+            this.ArchiteIcon=new THREE.Object3D();
+            this.ArchiteLabel=new THREE.Object3D();
+            this.ArchiteSprite.add(this.ArchiteIcon);
+            this.ArchiteSprite.add(this.ArchiteLabel);
+
+
+            /**             * 旋转             */
+            this.ArchiteMesh.rotateX(-(Math.PI/2));
+            this.ArchiteSprite.rotateX(-(Math.PI/2));
+
             this.parseBuildingOutLine();
         }
+
+        archite_show=true;
+        archite_name="";
+        archite_id="";
 
         is3D:Boolean=true;
 
@@ -191,11 +237,31 @@ namespace liaohengfan.LI_ARCHITE{
         /**         * 建筑id         */
         ArchiteID:String="";
 
+        /**         * 大厦模型         */
+        ArchiteMesh=null;
 
+        /**         * 标注         */
+        ArchiteSprite=null;
+        ArchiteIcon=null;
+        ArchiteLabel=null;
+
+        /**         * 楼层         */
+        architeFloors=[];
+
+        /**         * 轮廓模型         */
         buildingOutLine:Object=null;
+        buildingOutLineShow=false;
         /**         * 解析建筑轮廓         */
         parseBuildingOutLine(){
             this.buildingOutLine=getDataMesh(this.oriData.building);
+            this.buildingOutLine.visible=this.buildingOutLineShow;
+
+            this.ArchiteMesh.add(this.buildingOutLine);
+        }
+        /**         * 大厦轮廓展示         */
+        enabledBuildingOutLine(enabled_){
+            this.buildingOutLine.visible=enabled_;
+            this.buildingOutLineShow=enabled_;
         }
 
         /**
@@ -206,9 +272,55 @@ namespace liaohengfan.LI_ARCHITE{
             return this.oriData.building.DefaultFloor;
         }
 
-        /**         * 获取楼层模型         */
-        getFloorsMeshByID(floor_){
+        /**         * 展示楼层模型         */
+        showFloorsMeshByID(floor_){
 
+            var selectFloors=null;
+            selectFloors=_.findWhere(this.architeFloors,{archite_id:floor_});
+
+            //对应楼层是否已创建
+            if(selectFloors){
+
+                //当前仅选中的楼层显示
+                if(this.architeFloors.length==1) {
+                    return;
+                }
+            }else{
+
+                //不存在选择的模型，则创建
+                selectFloors=this.createFloors(floor_);
+                selectFloors.archite_id;
+                selectFloors.archite_name;
+                selectFloors.archite_show;
+                this.architeFloors.push(selectFloors);//添加到已创建模型
+
+                //展示模型
+                this.ArchiteMesh.add(selectFloors.getFuncAreasMesh());
+            }
+
+        }
+
+        /**         * 楼层公共设施         */
+        enabledFloorsPubPoints(show_){
+            //查询所有显示的楼层
+            var curShowFloors_=_.where(this.architeFloors,{archite_show:true});
+
+            for (var i = 0; i < curShowFloors_.length; i++) {
+                var obj = curShowFloors_[i];
+                this.ArchiteIcon.add(obj.getPubPoints());
+            }
+        }
+
+        /**         * 楼层标注         */
+        enabledFloorsLabel(show_,type_){
+
+        }
+
+        /**
+         * 创建对应模型
+         * @returns {liaohengfan.LI_ARCHITE.ArchiteFloor}
+         */
+        createFloors(floor_){
             var floorData_=null;
             /**             * 所有楼层             */
             floorData_=_.findWhere(this.oriData.Floors||[],{_id:floor_});
@@ -221,19 +333,6 @@ namespace liaohengfan.LI_ARCHITE{
 
             return floor_;
         }
-
-        /**         * 获取楼层标注         */
-        getFloorsLabel(floor_,type_){
-
-        }
-
-        /**         * 获取楼层icon         */
-        getFloorsIcon(){
-
-        }
-
-
-
     }
 
 
@@ -296,6 +395,17 @@ namespace liaohengfan.LI_ARCHITE{
         createOrthographic(){
             this.labelCamera = new THREE.OrthographicCamera( V_WIDTH / - 2, V_WIDTH / 2, V_HEIGHT / 2, V_HEIGHT / - 2, NEAR, FAER );
             this.labelScene=new THREE.Scene();
+
+
+
+            var control=new THREE.OrbitControls(this.labelCamera,this.controlDom);
+            control.maxPolarAngle=Math.PI/3;
+            control.minPolarAngle=0;
+            control.minDistance=1;
+            control.maxDistance=Infinity;
+            control.enableKeys=false;
+            control.update();
+
         }
 
         /**         * 创建透视投影用于建筑展示         */
@@ -335,8 +445,10 @@ namespace liaohengfan.LI_ARCHITE{
         /**         * 渲染         */
         render(){
             this.labelCamera.position.copy(this.camera.position);
+            this.labelCamera.updateProjectionMatrix();
             this.renderer.clear();
             this.renderer.render(this.scene,this.camera);
+            //this.renderer.render(this.scene,this.labelCamera);
             this.renderer.render(this.labelScene,this.camera);
             //this.renderer.render(this.labelScene,this.labelCamera);
         }
@@ -344,25 +456,21 @@ namespace liaohengfan.LI_ARCHITE{
         /**         * 刷新地图数据         */
         updateMapByArchiteBase(archite_:ArchiteBase){
             if(archite_){
-                if(archite_.buildingOutLine){
-                    archite_.buildingOutLine.rotateX(-(Math.PI/2));
-                    this.scene.add(archite_.buildingOutLine);
-                }
 
-                //楼层
-                var defaultFloor_=archite_.getDefaultFoolr();
-                var floorBase_=archite_.getFloorsMeshByID(defaultFloor_);
+                //将大厦模型添加到场景
+                this.scene.add(archite_.ArchiteMesh);
 
-                //店铺
-                var floorFuncAreaMesh_=floorBase_.getFuncAreasMesh();
-                floorFuncAreaMesh_.rotateX(-(Math.PI/2));
-                this.scene.add(floorFuncAreaMesh_);
+                //将标注信息添加到场景
+                this.labelScene.add(archite_.ArchiteSprite);
 
-                //楼层公共设施
-                var floorPublicPoints_=floorBase_.getPubPoint();
-                floorPublicPoints_.rotateX(-(Math.PI/2));
-                this.labelScene.add(floorPublicPoints_);
+                //展示大厦轮廓
+                archite_.enabledBuildingOutLine(true);
 
+                //展示默认楼层
+                archite_.showFloorsMeshByID(archite_.getDefaultFoolr());
+
+                //显示楼层公共服务点
+                archite_.enabledFloorsPubPoints(true);
 
             }
         }
