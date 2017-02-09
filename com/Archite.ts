@@ -4,6 +4,8 @@
 namespace liaohengfan.LI_ARCHITE{
 
 
+    // change by 2017.02.09
+
     let V_WIDTH:Number=1280;
     let V_HEIGHT:Number=720;
     let FOR:Number=60;
