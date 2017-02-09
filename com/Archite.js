@@ -42,6 +42,33 @@ var liaohengfan;
             }
             return shapePoints;
         }
+        /**     *  text 2 canvas Texture     */
+        function getLabelTexture(str_) {
+            //var canvas=document.getElementById('canvasTexture');
+            //var texture_=new THREE.Texture(canvas);
+            var canvas = document.createElement("canvas");
+            document.body.appendChild(canvas);
+            var ctx_ = canvas.getContext('2d');
+            /*ctx_.fillStyle='rgba(0,0,0,0)';
+            ctx_.fillRect(0,0,100,50);*/
+            ctx_.strokeStyle = '#FFFFFF'; //边框颜色
+            ctx_.fillStyle = '#000000'; //填充颜色
+            ctx_.lineWidth = '3';
+            ctx_.font = "40px Arial";
+            ctx_.strokeText(str_, 10, 50);
+            ctx_.fillText(str_, 10, 50);
+            var texture_ = new THREE.Texture(canvas);
+            return texture_;
+        }
+        /**     * 给图片添加外边框     */
+        function imageAddBorderTexture(img_) {
+            var canvas = document.createElement("canvas");
+            document.body.appendChild(canvas);
+            var ctx_ = canvas.getContext('2d');
+            ctx_.drawImage(img_, 0, 0);
+            var texture_ = new THREE.Texture(canvas);
+            return texture_;
+        }
         /**     * 解析所有轮廓     */
         function getDataMesh(data_, high_, color_) {
             if (high_ === void 0) { high_ = 1; }
@@ -100,6 +127,8 @@ var liaohengfan;
                  */
                 this.PubPoints = null;
                 this.funcAreaMesh = null;
+                /**         * 店铺         */
+                this.funcAreasLabels = null;
                 this.floorData = data_;
             }
             /**         * 公共服务点         */
@@ -115,20 +144,33 @@ var liaohengfan;
                     this.floorData.PubPoint = this.floorData.PubPoint || [];
                     var y_z = this.floorData.High;
                     y_z *= 10;
-                    //test
-                    /*var material_=new THREE.MeshBasicMaterial({
-                        color:0xFF0000
-                    });
-                    var geo_=new THREE.CubeGeometry(10,10,10);*/
                     for (var i = 0; i < this.floorData.PubPoint.length; i++) {
                         var point_ = this.floorData.PubPoint[i];
                         var position_ = point_.Outline[0][0];
                         var positionVec3 = new THREE.Vector3(position_[0] || 0, position_[1], y_z);
+                        /*(function(this_){
+                            var img_=new Image();
+                            img_.src="asset/PublicPointIco/100002.png";
+                            img_.onload=function(){
+                                var material_=new THREE.SpriteMaterial({
+                                    map:imageAddBorderTexture(img_),
+                                    color:0xFFFFFF,
+                                    depthTest:false
+                                });
+                                //material_.sizeAttenuation=false;
+                                material_.map.sizeAttenuation=false;
+                                material_.map.needsUpdate=true;
+                                var sprite_=new THREE.Sprite(material_);
+                                sprite_.scale.set(32,32,1);
+                                sprite_.position.copy(positionVec3);
+                                this_.PubPoints.add(sprite_);
+                            };
+                        })(this);*/
                         //图标待确认
                         var material_ = new THREE.SpriteMaterial({
-                            //map:texture_,
                             map: new THREE.TextureLoader().load("asset/PublicPointIco/100002.png"),
-                            color: 0xFFFFFF
+                            color: 0xFFFFFF,
+                            depthTest: false
                         });
                         material_.sizeAttenuation = false;
                         var sprite_ = new THREE.Sprite(material_);
@@ -159,6 +201,43 @@ var liaohengfan;
                     }
                 }
                 return this.funcAreaMesh;
+            };
+            /**         * 获取所有店面名称         */
+            ArchiteFloor.prototype.getFuncAreasLabel = function (enabled_) {
+                if (this.funcAreasLabels) {
+                    this.funcAreasLabels.visible = enabled_;
+                    return this.funcAreasLabels;
+                }
+                this.funcAreasLabels = new THREE.Object3D();
+                this.funcAreasLabels.visible = enabled_;
+                //公共设施
+                if (this.floorData.FuncAreas) {
+                    this.floorData.FuncAreas = this.floorData.FuncAreas || [];
+                    var y_z = this.floorData.High;
+                    y_z *= 10;
+                    for (var i = 0; i < this.floorData.FuncAreas.length; i++) {
+                        var point_ = this.floorData.FuncAreas[i];
+                        var position_ = point_.Center;
+                        var positionVec3 = new THREE.Vector3(position_[0] || 0, position_[1], y_z);
+                        positionVec3.x -= 50;
+                        //图标待确认
+                        var material_ = new THREE.SpriteMaterial({
+                            //var material_=new THREE.MeshBasicMaterial({
+                            map: getLabelTexture(point_.Name || " "),
+                            //map:new THREE.TextureLoader().load("asset/PublicPointIco/100003.png"),
+                            depthTest: false,
+                            color: 0xFFFFFF
+                        });
+                        material_.map.needsUpdate = true;
+                        material_.sizeAttenuation = false;
+                        var label_ = new THREE.Sprite(material_);
+                        //var label_=new THREE.Mesh(new THREE.PlaneGeometry(40,40),material_);
+                        label_.scale.set(100, 50, 1);
+                        label_.position.copy(positionVec3);
+                        this.funcAreasLabels.add(label_);
+                    }
+                }
+                return this.funcAreasLabels;
             };
             return ArchiteFloor;
         }());
@@ -252,11 +331,17 @@ var liaohengfan;
                 var curShowFloors_ = _.where(this.architeFloors, { archite_show: true });
                 for (var i = 0; i < curShowFloors_.length; i++) {
                     var obj = curShowFloors_[i];
-                    this.ArchiteIcon.add(obj.getPubPoints());
+                    this.ArchiteIcon.add(obj.getPubPoints(true));
                 }
             };
             /**         * 楼层标注         */
-            ArchiteBase.prototype.enabledFloorsLabel = function (show_, type_) {
+            ArchiteBase.prototype.enabledFloorsLabel = function (show_) {
+                //查询所有显示的楼层
+                var curShowFloors_ = _.where(this.architeFloors, { archite_show: true });
+                for (var i = 0; i < curShowFloors_.length; i++) {
+                    var obj = curShowFloors_[i];
+                    this.ArchiteIcon.add(obj.getFuncAreasLabel(true));
+                }
             };
             /**
              * 创建对应模型
@@ -383,6 +468,8 @@ var liaohengfan;
                     archite_.showFloorsMeshByID(archite_.getDefaultFoolr());
                     //显示楼层公共服务点
                     archite_.enabledFloorsPubPoints(true);
+                    //显示楼层店面名称
+                    archite_.enabledFloorsLabel(true);
                 }
             };
             /**         * 窗口更改         */
@@ -438,6 +525,10 @@ var liaohengfan;
             return ArchiteData;
         }());
         function init() {
+            /*var canvas=document.getElementById('canvasTexture');
+            var ctx=canvas.getContext('2d');
+            ctx.fillStyle='#FF0000';
+            ctx.fillRect(0,0,80,100);*/
             /**     * modules     */
             layui.use('layer', function () { console.log("layer load success!"); });
             /**     * detector     */

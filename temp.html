@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<canvas id="c_anvas" width="1000" height="800"></canvas>
+<script>
+    var context = document.getElementById('c_anvas').getContext('2d');
+    context.font = '48pt Helvetica';
+    context.strokeStyle = 'blue';//边框颜色
+    context.fillStyle = 'red';//填充颜色
+    context.lineWidth = '2';
+
+    //画文字
+    context.strokeText('边框', 60, 110);
+    context.fillText('填充', 440, 110);
+
+    context.strokeText('边框和填充', 650, 110);
+    context.fillText('边框和填充', 650, 110);
+    //画矩形
+    context.lineWidth = '5';
+    context.beginPath();//边框 矩形
+    context.rect(80, 150, 150, 100);
+    context.stroke();
+
+    context.beginPath();//填充 矩形
+    context.rect(400, 150, 150, 100);
+    context.fill();
+
+    context.beginPath();//边框和填充
+    context.rect(750, 150, 150, 100);
+    context.stroke();
+    context.fill();
+
+    //画弧度
+    context.beginPath();
+    context.arc(150, 370, 60, 0, 1.5 * Math.PI);
+    context.stroke();
+
+    context.beginPath();
+    context.arc(475, 370, 60, 0, Math.PI * 3 / 2);
+    context.fill();
+
+    context.beginPath();
+    context.arc(820, 370, 60, 0, Math.PI * 3 / 2);
+    context.stroke();
+    context.fill();
+    //closePath()方法创建当前点到起始点的路径
+    context.beginPath();
+    context.arc(150, 550, 60, 0, Math.PI * 3 / 2);
+    context.closePath();
+    context.stroke();
+
+    context.beginPath();
+    context.arc(475, 550, 60, 0, Math.PI * 3 / 2);
+    context.closePath();
+    context.fill();
+
+    context.beginPath();
+    context.arc(820, 550, 60, 0, Math.PI * 3 / 2);
+    context.closePath();
+    context.stroke();
+    context.fill();
+    //绘制三角形
+    context.beginPath();
+    context.moveTo(120, 650);
+    context.lineTo(120, 750);
+    context.lineTo(180, 750);
+    context.closePath();
+    context.stroke();
+
+    context.beginPath();
+    context.moveTo(450, 650);
+    context.lineTo(450, 750);
+    context.lineTo(510, 750);
+    context.closePath();
+    context.fill();
+
+    context.beginPath();
+    context.moveTo(810, 650);
+    context.lineTo(810, 750);
+    context.lineTo(870, 750);
+    context.closePath();
+    context.fill();
+    context.stroke();
+
+    context.beginPath();
+    context.moveTo(120, 800);
+    context.lineTo(120, 900);
+    context.lineTo(180, 900);
+    context.stroke();
+
+    context.beginPath();
+    context.moveTo(450, 800);
+    context.lineTo(450, 900);
+    context.lineTo(510, 900);
+    context.fill();
+
+    context.beginPath();
+    context.moveTo(810, 800);
+    context.lineTo(810, 900);
+    context.lineTo(870, 900);
+    context.fill();
+    context.stroke();
+</script>
+
+</body>
+</html>

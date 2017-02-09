@@ -32,3 +32,9 @@ html,body{
     width: 100%;
     height:100%;
 }
+
+#canvasTexture{
+    position:absolute;
+    left:0;
+    top:0;
+}
