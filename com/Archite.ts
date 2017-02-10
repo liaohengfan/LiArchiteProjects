@@ -52,7 +52,6 @@ namespace liaohengfan.LI_ARCHITE{
         //var texture_=new THREE.Texture(canvas);
 
         var canvas=document.createElement("canvas");
-        document.body.appendChild(canvas);
         var ctx_=canvas.getContext('2d');
         /*ctx_.fillStyle='rgba(0,0,0,0)';
         ctx_.fillRect(0,0,100,50);*/
@@ -436,11 +435,73 @@ namespace liaohengfan.LI_ARCHITE{
 
     /**     * UI管理     */
     class ArchiteUI{
-        constructor(dom_){
+        constructor(dom_,webgl_){
+            this.webgl=webgl_;
             this.domContainer=dom_;
+            this.domID=d3.select(dom_).attr("id");
+            this.domClass=d3.select(dom_).attr("class");
+            this.appendUIStyle(".layui-btn{margin: 0;padding:0;min-width:38px;min-height: 38px;font-size: 20px;line-height: 38px;}");
+            this.appendUIStyle(".layui-btn+.layui-btn{margin:0;padding:0}");
+            this.createScale();
         }
+        webgl=null;
+        uiStyles=null;
+        uiStylesStr="";
+        domClass="";
+        domID="";
         domContainer:HTMLElement=null;
         curArchite:ArchiteBase=null;
+
+        appendUIStyle(styles_){
+            if(!this.uiStyles){
+                this.uiStyles=d3.select("head").append("style");
+            }
+            if(this.domID){
+                styles_+=(this.domID+" "+styles_);
+            }else if(this.domClass){
+                styles_+=(this.domClass+" "+styles_);
+            }else{
+                styles_;
+            }
+            this.uiStylesStr+=styles_;
+            this.uiStyles.html(this.uiStylesStr);
+        }
+
+        createScale(){
+            var that_=this;
+            var enlarge_=this.createBtn("+",[10,10,0,0],function(){
+                if(that_.webgl){
+                    that_.webgl.zoomIn();
+                }
+            });
+            var narrow_=this.createBtn("-",[10,48,0,0],function(){
+                if(that_.webgl){
+                    that_.webgl.zoomAway();
+                }
+            });
+        }
+        createBtn(name_,pos_,callBack_){
+            callBack_=callBack_||function(){};
+            var position_={                left:0,top:0,right:0,bottom:0            };
+            position_.left=pos_[0]||10;
+            position_.top=pos_[1]||10;
+            position_.right=pos_[2]||0;
+            position_.bottom=pos_[3]||0;
+            var btn_=d3.select(this.domContainer).append("button");
+            btn_.attr("class","layui-btn layui-btn-primary");
+            btn_.text(name_);
+            btn_.style({
+                "position":"absolute",
+                "left":position_.left+"px",
+                "top":position_.top+"px",
+                "right":position_.right+"px",
+                "bottom":position_.bottom+"px"
+            });
+            btn_.on("click",function(e_){
+                callBack_();
+            });
+            return btn_;
+        }
 
         /**         * 刷新UI数据         */
         updataUIByArchiteBase(archite_:ArchiteBase){
@@ -462,6 +523,8 @@ namespace liaohengfan.LI_ARCHITE{
         camera=null;
         scene=null;
         curArchite:ArchiteBase=null;
+
+        cameraControls=[];
 
         labelScene=null;
         labelCamera=null;
@@ -498,9 +561,14 @@ namespace liaohengfan.LI_ARCHITE{
             var control=new THREE.OrbitControls(this.labelCamera,this.controlDom);
             control.maxPolarAngle=Math.PI/3;
             control.minPolarAngle=0;
-            control.minDistance=1;
+            control.minDistance=20;
+            // How far you can zoom in and out ( OrthographicCamera only )
+            control.minZoom = 1;
+            control.maxZoom = 10;
+
             control.maxDistance=Infinity;
             control.enableKeys=false;
+            this.cameraControls.push(control);
             control.update();
 
         }
@@ -517,9 +585,13 @@ namespace liaohengfan.LI_ARCHITE{
             var control=new THREE.OrbitControls(this.camera,this.controlDom);
             control.maxPolarAngle=Math.PI/3;
             control.minPolarAngle=0;
-            control.minDistance=1;
+            control.minDistance=20;
+
+            control.minDistance = 100;
+            control.maxDistance = 50000;
             control.maxDistance=Infinity;
             control.enableKeys=false;
+            this.cameraControls.push(control);
             control.update();
 
             this.scene=new THREE.Scene();
@@ -537,6 +609,19 @@ namespace liaohengfan.LI_ARCHITE{
             dirLight.position.multiplyScalar( 60 );
             this.scene.add( dirLight );
 
+        }
+
+        zoomIn(){
+            for (var i = 0; i < this.cameraControls.length; i++) {
+                var camera_ = this.cameraControls[i];
+                camera_.zoomIn();
+            }
+        }
+        zoomAway(){
+            for (var i = 0; i < this.cameraControls.length; i++) {
+                var camera_ = this.cameraControls[i];
+                camera_.zoomOut();
+            }
         }
 
         /**         * 渲染         */
@@ -656,17 +741,18 @@ namespace liaohengfan.LI_ARCHITE{
             return;
         }
 
-        /**     * ui     */
-        var uimana_=new ArchiteUI(document.getElementById("lhf_archite_ui_container"));
-
         /**     * webgl     */
         var architewebgl_=new ArchiteWebGL(document.getElementById("lhf_archite_wengl_container"),document.getElementById("lhf_archite_wengl_control"));
+
+        /**     * ui     */
+        var uimana_=new ArchiteUI(document.getElementById("lhf_archite_ui_container"),architewebgl_);
 
         /**     * data mana     */
         var architeDataMana_=new ArchiteData(uimana_,architewebgl_);
         architeDataMana_.getMapsbyAjax("ajaxData/aiqing.json",{});
 
         function render(){
+            TWEEN.update();
             requestAnimationFrame(render);
             architewebgl_.render();
         }

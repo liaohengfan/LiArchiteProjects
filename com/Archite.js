@@ -47,7 +47,6 @@ var liaohengfan;
             //var canvas=document.getElementById('canvasTexture');
             //var texture_=new THREE.Texture(canvas);
             var canvas = document.createElement("canvas");
-            document.body.appendChild(canvas);
             var ctx_ = canvas.getContext('2d');
             /*ctx_.fillStyle='rgba(0,0,0,0)';
             ctx_.fillRect(0,0,100,50);*/
@@ -362,11 +361,73 @@ var liaohengfan;
         }());
         /**     * UI管理     */
         var ArchiteUI = (function () {
-            function ArchiteUI(dom_) {
+            function ArchiteUI(dom_, webgl_) {
+                this.webgl = null;
+                this.uiStyles = null;
+                this.uiStylesStr = "";
+                this.domClass = "";
+                this.domID = "";
                 this.domContainer = null;
                 this.curArchite = null;
+                this.webgl = webgl_;
                 this.domContainer = dom_;
+                this.domID = d3.select(dom_).attr("id");
+                this.domClass = d3.select(dom_).attr("class");
+                this.appendUIStyle(".layui-btn{margin: 0;padding:0;min-width:38px;min-height: 38px;font-size: 20px;line-height: 38px;}");
+                this.appendUIStyle(".layui-btn+.layui-btn{margin:0;padding:0}");
+                this.createScale();
             }
+            ArchiteUI.prototype.appendUIStyle = function (styles_) {
+                if (!this.uiStyles) {
+                    this.uiStyles = d3.select("head").append("style");
+                }
+                if (this.domID) {
+                    styles_ += (this.domID + " " + styles_);
+                }
+                else if (this.domClass) {
+                    styles_ += (this.domClass + " " + styles_);
+                }
+                else {
+                    styles_;
+                }
+                this.uiStylesStr += styles_;
+                this.uiStyles.html(this.uiStylesStr);
+            };
+            ArchiteUI.prototype.createScale = function () {
+                var that_ = this;
+                var enlarge_ = this.createBtn("+", [10, 10, 0, 0], function () {
+                    if (that_.webgl) {
+                        that_.webgl.zoomIn();
+                    }
+                });
+                var narrow_ = this.createBtn("-", [10, 48, 0, 0], function () {
+                    if (that_.webgl) {
+                        that_.webgl.zoomAway();
+                    }
+                });
+            };
+            ArchiteUI.prototype.createBtn = function (name_, pos_, callBack_) {
+                callBack_ = callBack_ || function () { };
+                var position_ = { left: 0, top: 0, right: 0, bottom: 0 };
+                position_.left = pos_[0] || 10;
+                position_.top = pos_[1] || 10;
+                position_.right = pos_[2] || 0;
+                position_.bottom = pos_[3] || 0;
+                var btn_ = d3.select(this.domContainer).append("button");
+                btn_.attr("class", "layui-btn layui-btn-primary");
+                btn_.text(name_);
+                btn_.style({
+                    "position": "absolute",
+                    "left": position_.left + "px",
+                    "top": position_.top + "px",
+                    "right": position_.right + "px",
+                    "bottom": position_.bottom + "px"
+                });
+                btn_.on("click", function (e_) {
+                    callBack_();
+                });
+                return btn_;
+            };
             /**         * 刷新UI数据         */
             ArchiteUI.prototype.updataUIByArchiteBase = function (archite_) {
             };
@@ -381,6 +442,7 @@ var liaohengfan;
                 this.camera = null;
                 this.scene = null;
                 this.curArchite = null;
+                this.cameraControls = [];
                 this.labelScene = null;
                 this.labelCamera = null;
                 this.domContainer = dom_;
@@ -412,9 +474,13 @@ var liaohengfan;
                 var control = new THREE.OrbitControls(this.labelCamera, this.controlDom);
                 control.maxPolarAngle = Math.PI / 3;
                 control.minPolarAngle = 0;
-                control.minDistance = 1;
+                control.minDistance = 20;
+                // How far you can zoom in and out ( OrthographicCamera only )
+                control.minZoom = 1;
+                control.maxZoom = 10;
                 control.maxDistance = Infinity;
                 control.enableKeys = false;
+                this.cameraControls.push(control);
                 control.update();
             };
             /**         * 创建透视投影用于建筑展示         */
@@ -428,9 +494,12 @@ var liaohengfan;
                 var control = new THREE.OrbitControls(this.camera, this.controlDom);
                 control.maxPolarAngle = Math.PI / 3;
                 control.minPolarAngle = 0;
-                control.minDistance = 1;
+                control.minDistance = 20;
+                control.minDistance = 100;
+                control.maxDistance = 50000;
                 control.maxDistance = Infinity;
                 control.enableKeys = false;
+                this.cameraControls.push(control);
                 control.update();
                 this.scene = new THREE.Scene();
                 this.scene.add(new THREE.AxisHelper(10000));
@@ -444,6 +513,18 @@ var liaohengfan;
                 dirLight.position.set(1, 1.75, 0);
                 dirLight.position.multiplyScalar(60);
                 this.scene.add(dirLight);
+            };
+            ArchiteWebGL.prototype.zoomIn = function () {
+                for (var i = 0; i < this.cameraControls.length; i++) {
+                    var camera_ = this.cameraControls[i];
+                    camera_.zoomIn();
+                }
+            };
+            ArchiteWebGL.prototype.zoomAway = function () {
+                for (var i = 0; i < this.cameraControls.length; i++) {
+                    var camera_ = this.cameraControls[i];
+                    camera_.zoomOut();
+                }
             };
             /**         * 渲染         */
             ArchiteWebGL.prototype.render = function () {
@@ -537,14 +618,15 @@ var liaohengfan;
                 throw new Error("该浏览器不支持webgl / Canvas, 请更换浏览器后尝试！");
                 return;
             }
-            /**     * ui     */
-            var uimana_ = new ArchiteUI(document.getElementById("lhf_archite_ui_container"));
             /**     * webgl     */
             var architewebgl_ = new ArchiteWebGL(document.getElementById("lhf_archite_wengl_container"), document.getElementById("lhf_archite_wengl_control"));
+            /**     * ui     */
+            var uimana_ = new ArchiteUI(document.getElementById("lhf_archite_ui_container"), architewebgl_);
             /**     * data mana     */
             var architeDataMana_ = new ArchiteData(uimana_, architewebgl_);
             architeDataMana_.getMapsbyAjax("ajaxData/aiqing.json", {});
             function render() {
+                TWEEN.update();
                 requestAnimationFrame(render);
                 architewebgl_.render();
             }

@@ -9,11 +9,13 @@
 
     <!--    styles -->
     <link rel="stylesheet" href="styles/archite.css">
+    <link rel="stylesheet" href="libs/layui/css/layui.css"  media="all">
 
     <!--    libs    -->
     <script type="application/javascript" src="libs/jquery-3.0.0.js"></script>
     <script type="application/javascript" src="libs/d3.v3.min.js"></script>
     <script type="application/javascript" src="libs/underscore-min.js"></script>
+    <script type="application/javascript" src="libs/tween.min.js"></script>
     <script type="application/javascript" src="libs/three.js"></script>
     <script type="application/javascript" src="libs/Detector.js"></script>
 
@@ -31,7 +33,8 @@
 <body>
 <canvas id="canvasTexture">your browser does not support the canvas tag </canvas>
 <div class="container">
-    <div class="ui_container" id="lhf_archite_ui_container"></div>
+    <div class="ui_container" id="lhf_archite_ui_container">
+    </div>
     <div class="webgl_control" id="lhf_archite_wengl_control"></div>
     <div class="webgl_container" id="lhf_archite_wengl_container"></div>
 </div>

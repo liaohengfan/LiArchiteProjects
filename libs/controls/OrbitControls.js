@@ -74,6 +74,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	// Mouse buttons
 	this.mouseButtons = { ORBIT: THREE.MOUSE.LEFT, ZOOM: THREE.MOUSE.MIDDLE, PAN: THREE.MOUSE.RIGHT };
+	//this.mouseButtons = { PAN: THREE.MOUSE.LEFT, ZOOM: THREE.MOUSE.MIDDLE, ORBIT: THREE.MOUSE.RIGHT };
 
 	// for reset
 	this.target0 = this.target.clone();
@@ -384,6 +385,89 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	}
 
+	var scaleTweenObject={
+		persScale:1,
+		orthZoom:1
+	};
+	var scaleTween=new TWEEN.Tween(scaleTweenObject);
+
+	this.zoomIn=function(){
+		//dollyOut(getZoomScale());
+		var dollyScale_=getZoomScale();
+		if ( scope.object instanceof THREE.PerspectiveCamera ) {
+
+			var goalScale_=(scale * dollyScale_);
+			scaleTweenObject.persScale=scale;
+			scaleTween.to({persScale:goalScale_},300);
+			scaleTween.onUpdate(function(){
+				scale=this.persScale;
+				//console.log("scale:"+this.persScale);
+				scope.update();
+			});
+			scaleTween.start();
+
+		} else if ( scope.object instanceof THREE.OrthographicCamera ) {
+
+			scope.object.zoom = Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom / dollyScale_ ) );
+			scope.object.updateProjectionMatrix();
+			zoomChanged = true;
+
+			var goalZoom_=Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom / dollyScale_ ) );
+			scaleTweenObject.orthZoom=scope.object.zoom;
+			scaleTween.to({orthZoom:goalZoom_},300);
+			scaleTween.onUpdate(function(){
+				scope.object.zoom ==this.orthZoom;
+				scope.object.updateProjectionMatrix();
+				zoomChanged = true;
+				scope.update();
+			});
+			scaleTween.start();
+
+
+		} else {
+
+			console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.' );
+			scope.enableZoom = false;
+
+		}
+	};
+	this.zoomOut=function(){
+
+		//dollyIn(getZoomScale());
+		var dollyScale_=getZoomScale();
+		if ( scope.object instanceof THREE.PerspectiveCamera ) {
+			var goalScale_=(scale / dollyScale_);
+			scaleTweenObject.persScale=scale;
+			scaleTween.to({persScale:goalScale_},300);
+			scaleTween.onUpdate(function(){
+				scale=this.persScale;
+				//console.log("scale:"+this.persScale);
+				scope.update();
+			});
+			scaleTween.start();
+		} else if ( scope.object instanceof THREE.OrthographicCamera ) {
+
+			var goalZoom_=Math.max( scope.minZoom, Math.min( scope.maxZoom, scope.object.zoom * dollyScale ) );
+			scaleTweenObject.orthZoom=scope.object.zoom;
+			scaleTween.to({orthZoom:goalZoom_},300);
+			scaleTween.onUpdate(function(){
+				scope.object.zoom ==this.orthZoom;
+				scope.object.updateProjectionMatrix();
+				zoomChanged = true;
+				scope.update();
+			});
+			scaleTween.start();
+
+		} else {
+
+			console.warn( 'WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.' );
+			scope.enableZoom = false;
+
+		}
+
+		//scope.update();
+	};
+
 	function dollyOut( dollyScale ) {
 
 		if ( scope.object instanceof THREE.PerspectiveCamera ) {
@@ -675,7 +759,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		event.preventDefault();
 
-		if ( event.button === scope.mouseButtons.ORBIT ) {
+		if ( event.button === scope.mouseButtons.PAN ) {
+		//if ( event.button === scope.mouseButtons.ORBIT ) {
 
 			if ( scope.enableRotate === false ) return;
 
@@ -691,7 +776,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 			state = STATE.DOLLY;
 
-		} else if ( event.button === scope.mouseButtons.PAN ) {
+		//} else if ( event.button === scope.mouseButtons.PAN ) {
+		} else if ( event.button === scope.mouseButtons.ORBIT ) {
 
 			if ( scope.enablePan === false ) return;
 
@@ -838,7 +924,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		switch ( event.touches.length ) {
 
-			case 1: // one-fingered touch: rotate
+			//case 1: // one-fingered touch: rotate
+			case 2: // one-fingered touch: rotate
 
 				if ( scope.enableRotate === false ) return;
 				if ( state !== STATE.TOUCH_ROTATE ) return; // is this needed?...
@@ -847,7 +934,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 				break;
 
-			case 2: // two-fingered touch: dolly
+			//case 2: // two-fingered touch: dolly
+			case 1: // two-fingered touch: dolly
 
 				if ( scope.enableZoom === false ) return;
 				if ( state !== STATE.TOUCH_DOLLY ) return; // is this needed?...
