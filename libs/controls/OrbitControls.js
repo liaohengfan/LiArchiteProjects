@@ -55,6 +55,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	// Set to false to disable rotating
 	this.enableRotate = true;
+	this.enableRotateUp=true;
+	this.enableRotateLeft=true;
 	this.rotateSpeed = 1.0;
 
 	// Set to false to disable panning
@@ -282,13 +284,13 @@ THREE.OrbitControls = function ( object, domElement ) {
 	}
 
 	function rotateLeft( angle ) {
-
+		if(!scope.enableRotateLeft)return;
 		sphericalDelta.theta -= angle;
 
 	}
 
 	function rotateUp( angle ) {
-
+		if(!scope.enableRotateUp)return;
 		sphericalDelta.phi -= angle;
 
 	}

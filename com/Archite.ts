@@ -9,7 +9,7 @@ namespace liaohengfan.LI_ARCHITE{
     let V_WIDTH:Number=1280;
     let V_HEIGHT:Number=720;
     let FOR:Number=60;
-    let NEAR:Number=1;
+    let NEAR:Number=10;
     let FAER:Number=10000;
 
     let PI2:Number=Math.PI*2;
@@ -109,12 +109,87 @@ namespace liaohengfan.LI_ARCHITE{
                     var outLine3DMesh_=new THREE.Mesh(outLine3DGeo_,new THREE.MeshLambertMaterial({
                         color:(color_||0xFFFFFF)
                     }));
+                    color_+=1;
                     mesh_.add(outLine3DMesh_);
                 }
             }
             //mesh_.position.z=buildingExtrudeSettings.amount;
         }
         return mesh_;
+    }/**     * 解析所有轮廓     */
+    function getLimitHeightDataMesh(data_,high_=1,color_=0xFFFFFF){
+        var mesh_=new THREE.Object3D();
+        data_=data_||{};
+        data_.Outline=data_.Outline||[];
+        /**         * 轮廓         */
+        if(data_.Outline){
+
+            var buildingExtrudeSettings:Object={
+                amount: 10,
+                bevelEnabled: false,
+                curveSegments: 1,
+                steps: 1
+            };
+
+            /**                     * 编译所有轮廓                     */
+            for (var i = 0; i < data_.Outline.length; i++) {
+                var outlinePoints_ = data_.Outline[i];
+                outlinePoints_=outlinePoints_||[];
+                for (var j = 0; j < outlinePoints_.length; j++) {
+                    var point = parseVec2Points(outlinePoints_[j]);
+                    var outLineShape_=new THREE.Shape(point);
+
+                    /**                             * 楼层高度                             */
+                    buildingExtrudeSettings.amount=(high_)*10;
+
+                    var outLine3DGeo_=new THREE.ExtrudeGeometry(outLineShape_,buildingExtrudeSettings);
+                    var outLine3DMesh_=new THREE.Mesh(outLine3DGeo_,new THREE.MeshLambertMaterial({
+                        color:(color_||0xFFFFFF)
+                    }));
+                    color_+=1;
+                    mesh_.add(outLine3DMesh_);
+                }
+            }
+            //mesh_.position.z=buildingExtrudeSettings.amount;
+        }
+        return mesh_;
+    }
+
+    /**     * 修改透明度     */
+    function meshChangeOpacity(object3D_,alpha_){
+        alpha_=alpha_||1;
+        var transparent_=true;
+        if(alpha_>=1){
+            transparent_=false;
+        }
+
+        function changeOpacity(mesh_){
+            if(mesh_&&mesh_.type=="Mesh"){
+                if(mesh_.material) {
+                    mesh_.material.transparent = transparent_;
+                    mesh_.material.opacity = alpha_;
+                }
+            }
+
+            if(mesh_&&mesh_.type=="Sprite"){
+                if(mesh_.material) {
+                    mesh_.material.transparent = transparent_;
+                    mesh_.material.opacity = alpha_;
+                }
+            }
+
+            if(mesh_.children&&mesh_.children.length){
+                for (var i = 0; i < mesh_.children.length; i++) {
+                    var object3d_ = mesh_.children[i];
+                    changeOpacity(object3d_);
+
+                }
+            }
+        }
+        if(object3D_){
+            changeOpacity(object3D_);
+        }
+
     }
 
 
@@ -132,13 +207,16 @@ namespace liaohengfan.LI_ARCHITE{
     /**     * 楼层     */
     class ArchiteFloor{
 
-        constructor(data_){
+        constructor(data_,y_){
             this.floorData=data_;
+            this.yAxis=y_;
         }
         archite_show=true;
         archite_name="";
         archite_id="";
         floorData=null;
+
+        yAxis=0;
 
         /**
          * 公共设施点
@@ -154,6 +232,7 @@ namespace liaohengfan.LI_ARCHITE{
             }
 
             this.PubPoints=new THREE.Object3D();
+            this.PubPoints.position.z=(this.yAxis)+16;
             this.PubPoints.visible=enabled_;
 
             //公共设施
@@ -191,7 +270,7 @@ namespace liaohengfan.LI_ARCHITE{
                     var material_=new THREE.SpriteMaterial({
                         map:new THREE.TextureLoader().load("asset/PublicPointIco/100002.png"),
                         color:0xFFFFFF,
-                        depthTest:false
+                        //depthTest:false
                     });
                     material_.sizeAttenuation=false;
                     var sprite_=new THREE.Sprite(material_);
@@ -207,8 +286,22 @@ namespace liaohengfan.LI_ARCHITE{
 
         }
 
-        funcAreaMesh=null;
 
+        floorGround=null;
+
+        /**         * 楼层地板         */
+        getFloorGround(){
+            if(this.floorGround)return this.floorGround;
+            this.floorGround=new THREE.Object3D();
+            this.floorGround.position.z=this.yAxis-10;
+            if(this.floorData.Outline){
+                var floor_=getLimitHeightDataMesh(this.floorData,1,0xFFFFFF);
+                this.floorGround.add(floor_);
+            }
+            return this.floorGround;
+        }
+
+        funcAreaMesh=null;
         /**         * 店面         */
         getFuncAreasMesh(){
 
@@ -216,6 +309,7 @@ namespace liaohengfan.LI_ARCHITE{
             if(this.funcAreaMesh)return this.funcAreaMesh;
 
             this.funcAreaMesh=new THREE.Object3D();
+            this.funcAreaMesh.position.z=this.yAxis;
 
             //店面
             if(this.floorData.FuncAreas){
@@ -247,6 +341,7 @@ namespace liaohengfan.LI_ARCHITE{
             }
 
             this.funcAreasLabels=new THREE.Object3D();
+            this.funcAreasLabels.position.z=(this.yAxis);
             this.funcAreasLabels.visible=enabled_;
             //公共设施
             if(this.floorData.FuncAreas){
@@ -266,7 +361,7 @@ namespace liaohengfan.LI_ARCHITE{
                     //var material_=new THREE.MeshBasicMaterial({
                         map:getLabelTexture(point_.Name||" "),
                         //map:new THREE.TextureLoader().load("asset/PublicPointIco/100003.png"),
-                        depthTest:false,
+                        //depthTest:false,
                         color:0xFFFFFF
                     });
                     material_.map.needsUpdate=true;
@@ -291,6 +386,11 @@ namespace liaohengfan.LI_ARCHITE{
             this.ArchiteID=this.oriData.building._id;
             this.is3D=is3D_;
 
+            this.oriData.Floors=this.oriData.Floors||[];
+
+            /**             * 地面地板             */
+            this.floorGround=new THREE.Object3D();
+
             /**             * 创建大厦3D对象             */
             this.ArchiteMesh=new THREE.Object3D();
 
@@ -303,10 +403,12 @@ namespace liaohengfan.LI_ARCHITE{
 
 
             /**             * 旋转             */
+            this.floorGround.rotateX(-(Math.PI/2));
             this.ArchiteMesh.rotateX(-(Math.PI/2));
             this.ArchiteSprite.rotateX(-(Math.PI/2));
 
-            this.parseBuildingOutLine();
+            //大厦轮廓
+            //this.parseBuildingOutLine();
         }
 
         archite_show=true;
@@ -329,6 +431,9 @@ namespace liaohengfan.LI_ARCHITE{
 
         /**         * 大厦模型         */
         ArchiteMesh=null;
+
+        /**         * 大厦地面         */
+        floorGround=null;
 
         /**         * 标注         */
         ArchiteSprite=null;
@@ -362,19 +467,64 @@ namespace liaohengfan.LI_ARCHITE{
             return this.oriData.building.DefaultFloor;
         }
 
+        /**         * 获取楼层Y轴坐标         */
+        getFloorY(id_){
+            var trueFloors=null;
+            var y_=0;
+            if(id_>0){
+                trueFloors=_.filter(this.oriData.Floors,function(item_){
+                    return ((item_._id<id_)&&(item_._id>=0));
+                });
+                _.map(trueFloors,function(item_){
+                    y_+=(item_.High||0);
+                });
+                return y_;
+            }else{
+                trueFloors=_.filter(this.oriData.Floors,function(item_){
+                    return ((item_._id>=id_)&&(item_._id<=0));
+                });
+                _.map(trueFloors,function(item_){
+                    y_-=(item_.High||0);
+                });
+                return y_;
+            }
+
+
+        }
+
         /**         * 展示楼层模型         */
         showFloorsMeshByID(floor_){
 
             var selectFloors=null;
             selectFloors=_.findWhere(this.architeFloors,{archite_id:floor_});
 
+            /**
+             * 需要隐藏的楼层
+             * @type {any}
+             */
+            var hideFloors=null;
+            hideFloors=_.reject(this.architeFloors,function(item_){
+                return item_.archite_id==floor_;
+            });
+
+            if(hideFloors&&hideFloors.length){
+                for (var i = 0; i < hideFloors.length; i++) {
+                    var tempFloor_:ArchiteFloor = hideFloors[i];
+                    if(tempFloor_.floorGround)meshChangeOpacity(tempFloor_.floorGround,0.2);
+                    if(tempFloor_.funcAreaMesh)meshChangeOpacity(tempFloor_.funcAreaMesh,0.2);
+                    if(tempFloor_.PubPoints)meshChangeOpacity(tempFloor_.PubPoints,0.2);
+                    if(tempFloor_.funcAreasLabels)meshChangeOpacity(tempFloor_.funcAreasLabels,0.2);
+                }
+            }
+
             //对应楼层是否已创建
             if(selectFloors){
-
                 //当前仅选中的楼层显示
-                if(this.architeFloors.length==1) {
-                    return;
-                }
+                if(selectFloors.floorGround)meshChangeOpacity(selectFloors.floorGround,1);
+                if(selectFloors.funcAreaMesh)meshChangeOpacity(selectFloors.funcAreaMesh,1);
+                if(selectFloors.PubPoints)meshChangeOpacity(selectFloors.PubPoints,1);
+                if(selectFloors.funcAreasLabels)meshChangeOpacity(selectFloors.funcAreasLabels,1);
+
             }else{
 
                 //不存在选择的模型，则创建
@@ -386,29 +536,47 @@ namespace liaohengfan.LI_ARCHITE{
 
                 //展示模型
                 this.ArchiteMesh.add(selectFloors.getFuncAreasMesh());
+
+                //展示楼层地板
+                this.floorGround.add(selectFloors.getFloorGround());
+
+                //显示标注
+                this.ArchiteIcon.add(selectFloors.getPubPoints(this.pubPointShow));
+                this.ArchiteIcon.add(selectFloors.getFuncAreasLabel(this.funcareaLabelShow));
             }
+
+            return selectFloors;
 
         }
 
+        /**         * 隐藏所有楼层         */
+        hideAllFloors(){
+
+        }
+
+        pubPointShow=true;
         /**         * 楼层公共设施         */
         enabledFloorsPubPoints(show_){
+            this.pubPointShow=show_;
             //查询所有显示的楼层
             var curShowFloors_=_.where(this.architeFloors,{archite_show:true});
 
             for (var i = 0; i < curShowFloors_.length; i++) {
                 var obj = curShowFloors_[i];
-                this.ArchiteIcon.add(obj.getPubPoints(true));
+                this.ArchiteIcon.add(obj.getPubPoints(show_));
             }
         }
 
+        funcareaLabelShow=true;
         /**         * 楼层标注         */
         enabledFloorsLabel(show_){
+            this.funcareaLabelShow=show_;
             //查询所有显示的楼层
             var curShowFloors_=_.where(this.architeFloors,{archite_show:true});
 
             for (var i = 0; i < curShowFloors_.length; i++) {
                 var obj = curShowFloors_[i];
-                this.ArchiteIcon.add(obj.getFuncAreasLabel(true));
+                this.ArchiteIcon.add(obj.getFuncAreasLabel(show_));
             }
         }
 
@@ -424,8 +592,10 @@ namespace liaohengfan.LI_ARCHITE{
             //没有找到对应楼层
             if(!floorData_)return;
 
+            var y_=this.getFloorY(floor_);
+
             //创建楼层
-            var floor_=new ArchiteFloor(floorData_);
+            var floor_=new ArchiteFloor(floorData_,y_*30);
 
             return floor_;
         }
@@ -442,7 +612,10 @@ namespace liaohengfan.LI_ARCHITE{
             this.domClass=d3.select(dom_).attr("class");
             this.appendUIStyle(".layui-btn{margin: 0;padding:0;min-width:38px;min-height: 38px;font-size: 20px;line-height: 38px;}");
             this.appendUIStyle(".layui-btn+.layui-btn{margin:0;padding:0}");
+            this.appendUIStyle(".layui-form-label{width:auto;}");
+            this.appendUIStyle(".layui-input-block{margin-left:0;}");
             this.createScale();
+            this.createSwitchControl();
         }
         webgl=null;
         uiStyles=null;
@@ -505,7 +678,155 @@ namespace liaohengfan.LI_ARCHITE{
 
         /**         * 刷新UI数据         */
         updataUIByArchiteBase(archite_:ArchiteBase){
+            this.curArchite=archite_;
+            this.createFloorsBtn(archite_);
+        }
 
+        /**         * 创建功能开关         */
+        private createSwitchControl() {
+
+            var form_=d3.select(this.domContainer).append("form");
+            form_.attr("class","layui-form");
+
+            /**
+             * 创建复选框
+             * @param name_
+             * @param pos_
+             * @param callBack_
+             */
+            function createCheckBox(name_,pos_,callBack_){
+                callBack_=callBack_||function(){};
+                var position_={                left:0,top:0,right:0,bottom:0            };
+                position_.left=pos_[0]||10;
+                position_.top=pos_[1]||10;
+                position_.right=pos_[2]||0;
+                position_.bottom=pos_[3]||0;
+                var checkItem_=form_.append("div")
+                    .style({
+                        "width":"150px",
+                        "height":"50px",
+                        "position":"absolute",
+                        "left":position_.left+"px",
+                        "top":position_.top+"px",
+                        "right":position_.right+"px",
+                        "bottom":position_.bottom+"px"
+                    });
+                var checkBoxDiv_=checkItem_.append("div")
+                    .attr("class","layui-input-block");
+                var checkBox_=checkBoxDiv_.append("input")
+                    .attr({
+                        "type":"checkbox",
+                        "checked":"",
+                        "name":"open",
+                        "title":name_
+                    });
+
+                checkItem_.on("click",function(e_){
+                    var enbaled_ = checkBox_[0][0].checked;
+                    callBack_(enbaled_);
+                });
+                return checkItem_;
+            }
+
+            var that_=this;
+
+            var pubPoint_=createCheckBox("公共设施",[0,100,0,0],function(enabled_){
+                console.log("公共设施change:"+enabled_);
+                if(that_.webgl){
+                    that_.webgl.pubPointEnabled(enabled_);
+                }
+            });
+            var funcAreaName_=createCheckBox("店铺名称",[0,150,0,0],function(enabled_){
+                console.log("店铺名称change:"+enabled_);
+                if(that_.webgl){
+                    that_.webgl.funcAreasLabelEnabled(enabled_);
+                }
+            });
+
+            var selectFunArea_=createCheckBox("店铺选择",[0,200,0,0],function(enabled_){
+                console.log("店铺选择change:"+enabled_);
+                if(that_.webgl){
+                    that_.webgl.selectEnabled=enabled_;
+                }
+            });
+
+            var leftrightRotation_=createCheckBox("左右旋转",[0,250,0,0],function(enabled_){
+                console.log("左右旋转change:"+enabled_);
+                if(that_.webgl){
+                    that_.webgl.enabledRotateLeft(enabled_);
+                }
+            });
+            var upRotation_=createCheckBox("上下旋转",[0,300,0,0],function(enabled_){
+                console.log("上下旋转change:"+enabled_);
+                if(that_.webgl){
+                    that_.webgl.enabledRotateUp(enabled_);
+                }
+            });
+            var moveMap_=createCheckBox("移动地图",[0,350,0,0],function(enabled_){
+                console.log("移动地图change:"+enabled_);
+                if(that_.webgl){
+                    that_.webgl.enabledMapMove(enabled_);
+                }
+            });
+
+            var proShow_=createCheckBox("三维展示",[0,400,0,0],function(enabled_){
+                console.log("三维展示change:"+enabled_);
+                if(that_.webgl){
+                    that_.webgl.enabled3D(enabled_);
+                }
+            });
+        }
+
+        floorDom:HTMLElement=null;
+        /**         * 创建楼层管理         */
+        private createFloorsBtn(archite_:ArchiteBase){
+            var floorsData_=archite_.oriData.Floors||[];
+            if(!this.floorDom){
+                var floorDomTemp_=d3.select(this.domContainer).append("div");
+                this.floorDom=floorDomTemp_;
+                floorDomTemp_.style({
+                    "width":"50px",
+                    "height":"auto",
+                    "position":"absolute",
+                    "right":"10px",
+                    "top":"10px"
+                });
+            }
+            var _floorDom=this.floorDom;
+            /*
+             var allBtn_=_floorDom.append("button")
+             .attr("class","layui-btn layui-btn-primary")
+             .text("all");
+             */
+            var floorsDiv_=_floorDom.append("div")
+                .style({
+                    "width":"50px",
+                    "max-height":"300px"
+                });
+            floorsDiv_.selectAll("button").remove();
+            var floorBtns_=floorsDiv_.selectAll("button")
+                .data(floorsData_)
+                .enter()
+                .append("button")
+                .attr("class","layui-btn layui-btn-primary")
+                .text(function(item_){
+                    return item_.Name||"--";
+                })
+                .on("click",(item_)=>{
+                    this.selectFloor(item_);
+                });
+        }
+
+        /**
+         * 选择楼层
+         * @param e_
+         */
+        private selectFloor(item_: any) {
+            console.log(item_);
+            var selfloor_=this.curArchite.showFloorsMeshByID(item_._id);
+            if(this.webgl){
+                this.webgl.lookatYTweento(selfloor_.yAxis);
+            }
         }
     }
 
@@ -524,8 +845,11 @@ namespace liaohengfan.LI_ARCHITE{
         scene=null;
         curArchite:ArchiteBase=null;
 
+        perspectiveControl=null;
+        orthographicControl=null;
         cameraControls=[];
 
+        is3D=true;
         labelScene=null;
         labelCamera=null;
 
@@ -538,10 +862,20 @@ namespace liaohengfan.LI_ARCHITE{
                 this.renderer=new THREE.CanvasRenderer({antialias: true});
             }
 
+            //y轴视角移动
+            this.lookatTween=new TWEEN.Tween(this.lookatVector3);
+
+
+            this.scene=new THREE.Scene();
+            this.scene.add(new THREE.AxisHelper(10000));
+            this.labelScene=new THREE.Scene();
+
             this.createPerspective();
             this.createOrthographic();
 
             this.createLights();
+
+            this.createMeshSel();
 
             this.renderer.setClearColor(0xf1f2f7);
             this.renderer.setSize(V_WIDTH, V_HEIGHT);
@@ -551,23 +885,40 @@ namespace liaohengfan.LI_ARCHITE{
             this.domContainer.appendChild(this.renderer.domElement);
         }
 
-        /**         * 创建正交投影相机 用于图标展示         */
+
+        lookatTween=null;
+        lookatVector3=new THREE.Vector3(0,0,0);
+        /**
+         * 移动视角
+         * @param y_
+         */
+        lookatYTweento(y_){
+            var that_=this;
+            if(!that_.is3D)return;
+            that_.lookatVector3.copy(that_.perspectiveControl.target);
+            that_.lookatTween.to({y:y_},500).onUpdate(function(item_){
+                that_.perspectiveControl.target.copy(this);
+                that_.perspectiveControl.update();
+            });
+            that_.lookatTween.start();
+
+        }
+
+        /**         * 创建正交投影相机 用于2D展示         */
         createOrthographic(){
-            this.labelCamera = new THREE.OrthographicCamera( V_WIDTH / - 2, V_WIDTH / 2, V_HEIGHT / 2, V_HEIGHT / - 2, NEAR, FAER );
-            this.labelScene=new THREE.Scene();
-
-
-
+            this.labelCamera = new THREE.OrthographicCamera( V_WIDTH / - 2, V_WIDTH / 2, V_HEIGHT / 2, V_HEIGHT / - 2, -FAER, FAER*2 );
             var control=new THREE.OrbitControls(this.labelCamera,this.controlDom);
-            control.maxPolarAngle=Math.PI/3;
+            control.maxPolarAngle=Math.PI/2;
             control.minPolarAngle=0;
             control.minDistance=20;
             // How far you can zoom in and out ( OrthographicCamera only )
             control.minZoom = 1;
-            control.maxZoom = 10;
+            control.maxZoom = 100;
 
             control.maxDistance=Infinity;
             control.enableKeys=false;
+            this.orthographicControl=control;
+            control.enabled=false;//默认3D
             this.cameraControls.push(control);
             control.update();
 
@@ -579,11 +930,11 @@ namespace liaohengfan.LI_ARCHITE{
             this.camera.up.set(0,1,0);
             this.camera.lookAt(new THREE.Vector3(0,0,0));
             this.camera.position.z=-1200;
-            this.camera.position.y=100;
-            this.camera.position.x=-1000;
+            this.camera.position.y=800;
+            this.camera.position.x=-800;
 
             var control=new THREE.OrbitControls(this.camera,this.controlDom);
-            control.maxPolarAngle=Math.PI/3;
+            control.maxPolarAngle=Math.PI/2;
             control.minPolarAngle=0;
             control.minDistance=20;
 
@@ -591,11 +942,9 @@ namespace liaohengfan.LI_ARCHITE{
             control.maxDistance = 50000;
             control.maxDistance=Infinity;
             control.enableKeys=false;
+            this.perspectiveControl=control;
             this.cameraControls.push(control);
             control.update();
-
-            this.scene=new THREE.Scene();
-            this.scene.add(new THREE.AxisHelper(10000));
         }
 
         /**         * 创建场景灯光         */
@@ -624,20 +973,82 @@ namespace liaohengfan.LI_ARCHITE{
             }
         }
 
+        /**
+         * 上下旋转视角
+         * @param enable_
+         */
+        enabledRotateUp(enable_){
+            for (var i = 0; i < this.cameraControls.length; i++) {
+                var camera_ = this.cameraControls[i];
+                camera_.enableRotateUp=enable_;
+            }
+        }
+
+        /**
+         *左右旋转视角
+         * @param enable_
+         */
+        enabledRotateLeft(enable_){
+            for (var i = 0; i < this.cameraControls.length; i++) {
+                var camera_ = this.cameraControls[i];
+                camera_.enableRotateLeft=enable_;
+            }
+        }
+
+        /**         * 移动地图         */
+        enabledMapMove(enable_){
+            for (var i = 0; i < this.cameraControls.length; i++) {
+                var camera_ = this.cameraControls[i];
+                camera_.enablePan=enable_;
+            }
+        }
+
         /**         * 渲染         */
         render(){
-            this.labelCamera.position.copy(this.camera.position);
-            this.labelCamera.updateProjectionMatrix();
             this.renderer.clear();
-            this.renderer.render(this.scene,this.camera);
-            //this.renderer.render(this.scene,this.labelCamera);
-            this.renderer.render(this.labelScene,this.camera);
-            //this.renderer.render(this.labelScene,this.labelCamera);
+            if(this.is3D){
+                this.renderer.render(this.scene,this.camera);
+                this.renderer.render(this.labelScene,this.camera);
+            }else{
+                this.renderer.render(this.scene,this.labelCamera);
+                this.renderer.render(this.labelScene,this.labelCamera);
+            }
+        }
+
+        /**         * 3D切换         */
+        enabled3D(enable_){
+            //this.is3D=enable_;
+            this.is3D=true;
+            if(this.is3D){
+                this.perspectiveControl.enabled=true;
+                this.orthographicControl.enabled=false;
+            }else{
+                this.perspectiveControl.enabled=false;
+                this.orthographicControl.enabled=true;
+            }
+        }
+
+        /**         * 公共设施展示         */
+        pubPointEnabled(enabeld_){
+            if(this.curArchite){
+                this.curArchite.enabledFloorsPubPoints(enabeld_);
+            }
+        }
+
+        /**         * 店铺名称         */
+        funcAreasLabelEnabled(enabled_){
+            if(this.curArchite){
+                this.curArchite.enabledFloorsLabel(enabled_);
+            }
         }
 
         /**         * 刷新地图数据         */
         updateMapByArchiteBase(archite_:ArchiteBase){
+            this.curArchite=archite_;
             if(archite_){
+
+                //添加大厦地板
+                this.scene.add(archite_.floorGround);
 
                 //将大厦模型添加到场景
                 this.scene.add(archite_.ArchiteMesh);
@@ -646,7 +1057,7 @@ namespace liaohengfan.LI_ARCHITE{
                 this.labelScene.add(archite_.ArchiteSprite);
 
                 //展示大厦轮廓
-                archite_.enabledBuildingOutLine(true);
+                //archite_.enabledBuildingOutLine(true);
 
                 //展示默认楼层
                 archite_.showFloorsMeshByID(archite_.getDefaultFoolr());
@@ -675,6 +1086,89 @@ namespace liaohengfan.LI_ARCHITE{
             this.labelCamera.updateProjectionMatrix();
 
 
+
+        }
+
+        /**
+         * 选择？
+         * @type {boolean}
+         */
+        selectEnabled=true;
+        raycaster=null;
+        meshSelDownPoint=new THREE.Vector2(0,0);
+        isSel=true;
+        SelMesh=null;
+        SelMeshOrigMaterial=null;
+        SelColor=0xFFFF00;
+        SelMaterial=new THREE.MeshLambertMaterial({
+            color:0xFFFF00,
+            emissing:0x000000,
+            transparent:true,
+            opacity:1
+        });
+
+        SelEffectTweenAlpha1=null;
+        SelEffectTweenAlpha0=null;
+
+        mousePoint=new THREE.Vector2(0,0);
+        /**         * 创建模型选择         */
+        private createMeshSel() {
+            this.SelEffectTweenAlpha1=new TWEEN.Tween(this.SelMaterial);
+            this.SelEffectTweenAlpha0=new TWEEN.Tween(this.SelMaterial);
+            this.SelEffectTweenAlpha1.to({opacity:1},500);
+            this.SelEffectTweenAlpha0.to({opacity:0},500).onComplete(()=>{
+                this.SelEffectTweenAlpha1.start();
+            });
+
+
+            this.raycaster=new THREE.Raycaster();
+            this.controlDom.addEventListener("mousedown",(e_)=>{
+                this.meshSelDownPoint.x=e_.clientX;
+                this.meshSelDownPoint.y=e_.clientY;
+            });
+            this.controlDom.addEventListener("mouseup",(e_)=>{
+                if(Math.abs(this.meshSelDownPoint.x-e_.clientX)>3||Math.abs(this.meshSelDownPoint.y-e_.clientY)>3){
+                    this.isSel=false;
+                }else{
+                    this.isSel=true;
+                }
+            });
+            this.controlDom.addEventListener("click",(e_)=>{
+                if(this.isSel&&this.curArchite&&this.selectEnabled){
+                    if(!this.curArchite.ArchiteMesh)return;
+                    this.mousePoint.x = ( e_.clientX / V_WIDTH ) * 2 - 1;
+                    this.mousePoint.y = - ( e_.clientY / V_HEIGHT ) * 2 + 1;
+
+                    this.raycaster.setFromCamera( this.mousePoint, this.camera );
+
+                    // calculate objects intersecting the picking ray
+                    var intersects = this.raycaster.intersectObjects( this.curArchite.ArchiteMesh.children,true );
+
+                    /**                     * 有选中的对象                     */
+                    if(intersects.length){
+                        this.selMeshHandler(intersects[0]);
+                    }
+
+
+                }else{
+                    //msg("no Sel");
+                }
+            });
+        }
+
+        /**         * 选中了模型         */
+        private selMeshHandler(obj_){
+            if(obj_&&obj_.object){
+                var selMesh_=obj_.object;
+                if(this.SelMesh){
+                    this.SelMesh.material=this.SelMeshOrigMaterial;
+                }
+                this.SelMesh=selMesh_;
+                this.SelMeshOrigMaterial=this.SelMesh.material;
+                selMesh_.material=this.SelMaterial;
+                this.SelMaterial.opacity=1;
+                this.SelEffectTweenAlpha0.start();
+            }
 
         }
     }
@@ -724,15 +1218,9 @@ namespace liaohengfan.LI_ARCHITE{
 
     function init(){
 
-
-
-        /*var canvas=document.getElementById('canvasTexture');
-        var ctx=canvas.getContext('2d');
-        ctx.fillStyle='#FF0000';
-        ctx.fillRect(0,0,80,100);*/
-
         /**     * modules     */
         layui.use('layer', function(){        console.log("layer load success!");    });
+        layui.use('form', function(){        console.log("layui form load success!");    });
 
         /**     * detector     */
         if(!Detector.webgl){
