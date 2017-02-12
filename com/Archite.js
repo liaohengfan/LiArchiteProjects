@@ -11,7 +11,32 @@ var liaohengfan;
         var FOR = 60;
         var NEAR = 10;
         var FAER = 10000;
+        var ICON_ASSET_BASE = "asset/PublicPointIco/";
+        var ICON_TYPE_CHECK = [
+            { name: "ATM", type: "31003", ico: "ATM.png", en: "" },
+            { name: "残障洗手间", type: "11005", ico: "crippled.png", en: "" },
+            { name: "出入口", type: "31004", ico: "entry.png", en: "" },
+            { name: "扶梯", type: "21002", ico: "escalator.png", en: "" },
+            { name: "女洗手间", type: "11003", ico: "Female.png", en: "" },
+            { name: "问讯处", type: "31001", ico: "inquiry.png", en: "" },
+            { name: "直梯", type: "21003", ico: "lift.png", en: "" },
+            { name: "补妆间", type: "31002", ico: "Makeup.png", en: "" },
+            { name: "男洗手间", type: "11002", ico: "Male.png", en: "" },
+            { name: "母婴室", type: "11004", ico: "MomBaby.png", en: "" },
+            { name: "楼梯", type: "21001", ico: "stair.png", en: "" },
+            { name: "洗手间", type: "11001", ico: "toilet.png", en: "" }
+        ];
         var PI2 = Math.PI * 2;
+        /**
+         * 通过type获取icon
+         */
+        function getIconUrlByType(type_) {
+            var obj_ = _.findWhere(ICON_TYPE_CHECK, { type: type_ });
+            if (obj_) {
+                return (ICON_ASSET_BASE + obj_.ico);
+            }
+            return "";
+        }
         /**     * 信息输出     */
         var msg = function (info_) {
             if (layui.layer) {
@@ -175,6 +200,8 @@ var liaohengfan;
                 this.archite_name = "";
                 this.archite_id = "";
                 this.mesh = null;
+                this.archite_id = data_._id;
+                this.archite_name = data_.Name;
                 this.mesh = getDataMesh(data_, high_, color_);
             }
             return ArchiteFuncArea;
@@ -197,6 +224,8 @@ var liaohengfan;
                 /**         * 店铺         */
                 this.funcAreasLabels = null;
                 this.floorData = data_;
+                this.archite_id = data_._id;
+                this.archite_name = data_.Name;
                 this.yAxis = y_;
             }
             /**         * 公共服务点         */
@@ -235,10 +264,13 @@ var liaohengfan;
                                 this_.PubPoints.add(sprite_);
                             };
                         })(this);*/
+                        var ico_ = getIconUrlByType(point_.Type);
                         //图标待确认
                         var material_ = new THREE.SpriteMaterial({
-                            map: new THREE.TextureLoader().load("asset/PublicPointIco/100002.png"),
-                            color: 0xFFFFFF
+                            //map:new THREE.TextureLoader().load("asset/PublicPointIco/100002.png"),
+                            map: new THREE.TextureLoader().load(ico_),
+                            color: 0xFFFFFF,
+                            depthTest: false
                         });
                         material_.sizeAttenuation = false;
                         var sprite_ = new THREE.Sprite(material_);
@@ -302,18 +334,14 @@ var liaohengfan;
                         var position_ = point_.Center;
                         var positionVec3 = new THREE.Vector3(position_[0] || 0, position_[1], y_z);
                         positionVec3.x -= 50;
-                        //图标待确认
                         var material_ = new THREE.SpriteMaterial({
-                            //var material_=new THREE.MeshBasicMaterial({
                             map: getLabelTexture(point_.Name || " "),
-                            //map:new THREE.TextureLoader().load("asset/PublicPointIco/100003.png"),
-                            //depthTest:false,
+                            depthTest: false,
                             color: 0xFFFFFF
                         });
                         material_.map.needsUpdate = true;
                         material_.sizeAttenuation = false;
                         var label_ = new THREE.Sprite(material_);
-                        //var label_=new THREE.Mesh(new THREE.PlaneGeometry(40,40),material_);
                         label_.scale.set(100, 50, 1);
                         label_.position.copy(positionVec3);
                         this.funcAreasLabels.add(label_);
@@ -357,6 +385,8 @@ var liaohengfan;
                 this.ArchiteName = this.oriData.building.Name;
                 this.ArchiteOutLine = this.oriData.building.Outline;
                 this.ArchiteID = this.oriData.building._id;
+                this.archite_id = data_._id;
+                this.archite_name = data_.Name;
                 this.is3D = is3D_;
                 this.oriData.Floors = this.oriData.Floors || [];
                 /**             * 地面地板             */
@@ -433,13 +463,13 @@ var liaohengfan;
                     for (var i = 0; i < hideFloors.length; i++) {
                         var tempFloor_ = hideFloors[i];
                         if (tempFloor_.floorGround)
-                            meshChangeOpacity(tempFloor_.floorGround, 0.2);
+                            meshChangeOpacity(tempFloor_.floorGround, 0.1);
                         if (tempFloor_.funcAreaMesh)
-                            meshChangeOpacity(tempFloor_.funcAreaMesh, 0.2);
+                            meshChangeOpacity(tempFloor_.funcAreaMesh, 0.1);
                         if (tempFloor_.PubPoints)
-                            meshChangeOpacity(tempFloor_.PubPoints, 0.2);
+                            meshChangeOpacity(tempFloor_.PubPoints, 0.1);
                         if (tempFloor_.funcAreasLabels)
-                            meshChangeOpacity(tempFloor_.funcAreasLabels, 0.2);
+                            meshChangeOpacity(tempFloor_.funcAreasLabels, 0.1);
                     }
                 }
                 //对应楼层是否已创建
@@ -457,9 +487,6 @@ var liaohengfan;
                 else {
                     //不存在选择的模型，则创建
                     selectFloors = this.createFloors(floor_);
-                    selectFloors.archite_id;
-                    selectFloors.archite_name;
-                    selectFloors.archite_show;
                     this.architeFloors.push(selectFloors); //添加到已创建模型
                     //展示模型
                     this.ArchiteMesh.add(selectFloors.getFuncAreasMesh());
@@ -533,6 +560,7 @@ var liaohengfan;
                 this.appendUIStyle(".layui-input-block{margin-left:0;}");
                 this.createScale();
                 this.createSwitchControl();
+                this.createBackgroundSet();
             }
             ArchiteUI.prototype.appendUIStyle = function (styles_) {
                 if (!this.uiStyles) {
@@ -726,6 +754,61 @@ var liaohengfan;
                     this.webgl.lookatYTweento(selfloor_.yAxis);
                 }
             };
+            /**         * 创建背景颜色更改         */
+            ArchiteUI.prototype.createBackgroundSet = function () {
+                var _this = this;
+                var position_ = { left: 10, top: 450, right: 0, bottom: 0 };
+                var colorItem_ = d3.select(this.domContainer).append("div")
+                    .style({
+                    "width": "150px",
+                    "height": "50px",
+                    "position": "absolute",
+                    "left": position_.left + "px",
+                    "top": position_.top + "px",
+                    "right": position_.right + "px",
+                    "bottom": position_.bottom + "px"
+                });
+                var colorlabel_ = colorItem_.append("label")
+                    .style({
+                    "width": "75px",
+                    "height": "30px",
+                    "font-size": "14px",
+                    "float": "left",
+                    "line-height": "30px",
+                    "color": "white",
+                    "padding-left": "10px",
+                    "background": "#5fb878",
+                    "box-sizing": "border-box",
+                    "border-radius": "3px"
+                }).text("背景颜色");
+                var colorPlugs_ = colorItem_.append("div")
+                    .attr("class", "webgl_backgroundColor")
+                    .style({
+                    "float": "left",
+                    "width": "30px",
+                    "height": "30px",
+                    "background": "#f1f2f7",
+                    "border": "1px solid #5fb878"
+                });
+                $('.webgl_backgroundColor').colpick({
+                    color: "f1f2f7",
+                    onSubmit: function (hsb, hex, rgb, el) {
+                        colorPlugs_.style("background", "#" + hex);
+                        hex = "0x" + hex;
+                        hex = Math.floor(hex);
+                        _this.webglBackgroundChange(hex);
+                    }
+                });
+            };
+            /**
+             * webgl背景颜色更改
+             * @param hex_
+             */
+            ArchiteUI.prototype.webglBackgroundChange = function (hex_) {
+                if (this.webgl) {
+                    this.webgl.backgroundSet(hex_);
+                }
+            };
             return ArchiteUI;
         }());
         /**     * WebGL     */
@@ -885,6 +968,13 @@ var liaohengfan;
                 for (var i = 0; i < this.cameraControls.length; i++) {
                     var camera_ = this.cameraControls[i];
                     camera_.enableRotateLeft = enable_;
+                }
+            };
+            /**         * 背景设置         */
+            ArchiteWebGL.prototype.backgroundSet = function (color_) {
+                color_ = color_ || 0xf1f2f7;
+                if (this.renderer) {
+                    this.renderer.setClearColor(color_);
                 }
             };
             /**         * 移动地图         */
@@ -1073,7 +1163,8 @@ var liaohengfan;
             var uimana_ = new ArchiteUI(document.getElementById("lhf_archite_ui_container"), architewebgl_);
             /**     * data mana     */
             var architeDataMana_ = new ArchiteData(uimana_, architewebgl_);
-            architeDataMana_.getMapsbyAjax("ajaxData/aiqing.json", {});
+            //architeDataMana_.getMapsbyAjax("ajaxData/aiqing.json",{});
+            architeDataMana_.getMapsbyAjax("ajaxData/fangcaodi.json", {});
             function render() {
                 TWEEN.update();
                 requestAnimationFrame(render);

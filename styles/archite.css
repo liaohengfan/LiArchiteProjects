@@ -37,3 +37,9 @@ html,body{
     left:0;
     top:0;
 }
+.colpick, .colpick * {
+    -moz-box-sizing: content-box;
+    -webkit-box-sizing: content-box;
+    box-sizing: content-box;
+    z-index: 999;
+}
