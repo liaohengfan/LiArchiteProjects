@@ -97,7 +97,10 @@ var liaohengfan;
         function getDataMesh(data_, high_, color_) {
             if (high_ === void 0) { high_ = 1; }
             if (color_ === void 0) { color_ = 0xFFFFFF; }
-            var mesh_ = new THREE.Object3D();
+            var outline = {
+                outline3D: new THREE.Object3D(),
+                outline2D: new THREE.Object3D()
+            };
             data_ = data_ || {};
             data_.Outline = data_.Outline || [];
             /**         * 轮廓         */
@@ -115,6 +118,10 @@ var liaohengfan;
                     for (var j = 0; j < outlinePoints_.length; j++) {
                         var point = parseVec2Points(outlinePoints_[j]);
                         var outLineShape_ = new THREE.Shape(point);
+                        var outLine2DGeo_ = new THREE.ShapeGeometry(outLineShape_);
+                        var outLine2DMesh_ = new THREE.Mesh(outLine2DGeo_, new THREE.MeshBasicMaterial({
+                            color: (color_ || 0xFFFFFF)
+                        }));
                         /**                             * 楼层高度                             */
                         buildingExtrudeSettings.amount = (data_.High || high_) * 10;
                         var outLine3DGeo_ = new THREE.ExtrudeGeometry(outLineShape_, buildingExtrudeSettings);
@@ -122,16 +129,20 @@ var liaohengfan;
                             color: (color_ || 0xFFFFFF)
                         }));
                         color_ += 1;
-                        mesh_.add(outLine3DMesh_);
+                        outline.outline3D.add(outLine3DMesh_);
+                        outline.outline2D.add(outLine2DMesh_);
                     }
                 }
             }
-            return mesh_;
+            return outline;
         } /**     * 解析所有轮廓     */
         function getLimitHeightDataMesh(data_, high_, color_) {
             if (high_ === void 0) { high_ = 1; }
             if (color_ === void 0) { color_ = 0xFFFFFF; }
-            var mesh_ = new THREE.Object3D();
+            var outline = {
+                outline3D: new THREE.Object3D(),
+                outline2D: new THREE.Object3D()
+            };
             data_ = data_ || {};
             data_.Outline = data_.Outline || [];
             /**         * 轮廓         */
@@ -149,6 +160,10 @@ var liaohengfan;
                     for (var j = 0; j < outlinePoints_.length; j++) {
                         var point = parseVec2Points(outlinePoints_[j]);
                         var outLineShape_ = new THREE.Shape(point);
+                        var outLine2DGeo_ = new THREE.ShapeGeometry(outLineShape_);
+                        var outLine2DMesh_ = new THREE.Mesh(outLine2DGeo_, new THREE.MeshBasicMaterial({
+                            color: (color_ || 0xFFFFFF)
+                        }));
                         /**                             * 楼层高度                             */
                         buildingExtrudeSettings.amount = (high_) * 10;
                         var outLine3DGeo_ = new THREE.ExtrudeGeometry(outLineShape_, buildingExtrudeSettings);
@@ -156,11 +171,12 @@ var liaohengfan;
                             color: (color_ || 0xFFFFFF)
                         }));
                         color_ += 1;
-                        mesh_.add(outLine3DMesh_);
+                        outline.outline3D.add(outLine3DMesh_);
+                        outline.outline2D.add(outLine2DMesh_);
                     }
                 }
             }
-            return mesh_;
+            return outline;
         }
         /**     * 修改透明度     */
         function meshChangeOpacity(object3D_, alpha_) {
@@ -200,9 +216,12 @@ var liaohengfan;
                 this.archite_name = "";
                 this.archite_id = "";
                 this.mesh = null;
+                this.plane = null;
                 this.archite_id = data_._id;
                 this.archite_name = data_.Name;
-                this.mesh = getDataMesh(data_, high_, color_);
+                var outLine_ = getDataMesh(data_, high_, color_);
+                this.mesh = outLine_.outline3D;
+                this.plane = outLine_.outline2D;
             }
             return ArchiteFuncArea;
         }());
@@ -214,19 +233,23 @@ var liaohengfan;
                 this.archite_id = "";
                 this.floorData = null;
                 this.yAxis = 0;
+                this.floorHigh = 0;
                 /**
                  * 公共设施点
                  * @type {any}
                  */
                 this.PubPoints = null;
                 this.floorGround = null;
+                this.floorGround2D = null;
                 this.funcAreaMesh = null;
+                this.funcAreaMesh2D = null;
                 /**         * 店铺         */
                 this.funcAreasLabels = null;
                 this.floorData = data_;
                 this.archite_id = data_._id;
                 this.archite_name = data_.Name;
                 this.yAxis = y_;
+                this.floorHigh = data_.High * 10;
             }
             /**         * 公共服务点         */
             ArchiteFloor.prototype.getPubPoints = function (enabled_) {
@@ -282,24 +305,47 @@ var liaohengfan;
                 return this.PubPoints;
             };
             /**         * 楼层地板         */
-            ArchiteFloor.prototype.getFloorGround = function () {
-                if (this.floorGround)
-                    return this.floorGround;
+            ArchiteFloor.prototype.getFloorGround = function (is3D_) {
+                if (is3D_ === void 0) { is3D_ = true; }
+                if (this.floorGround) {
+                    if (is3D_) {
+                        return this.floorGround;
+                    }
+                    else {
+                        return this.floorGround2D;
+                    }
+                }
                 this.floorGround = new THREE.Object3D();
                 this.floorGround.position.z = this.yAxis - 10;
+                this.floorGround2D = new THREE.Object3D();
+                this.floorGround2D.position.z = (this.yAxis + this.floorHigh) - 1;
                 if (this.floorData.Outline) {
                     var floor_ = getLimitHeightDataMesh(this.floorData, 1, 0xFFFFFF);
-                    this.floorGround.add(floor_);
+                    this.floorGround.add(floor_.outline3D);
+                    this.floorGround2D.add(floor_.outline2D);
                 }
-                return this.floorGround;
+                if (is3D_) {
+                    return this.floorGround;
+                }
+                else {
+                    return this.floorGround2D;
+                }
             };
             /**         * 店面         */
-            ArchiteFloor.prototype.getFuncAreasMesh = function () {
+            ArchiteFloor.prototype.getFuncAreasMesh = function (is3D_) {
                 //模型已经创建
-                if (this.funcAreaMesh)
-                    return this.funcAreaMesh;
+                if (this.funcAreaMesh) {
+                    if (is3D_) {
+                        return this.funcAreaMesh;
+                    }
+                    else {
+                        return this.funcAreaMesh2D;
+                    }
+                }
                 this.funcAreaMesh = new THREE.Object3D();
                 this.funcAreaMesh.position.z = this.yAxis;
+                this.funcAreaMesh2D = new THREE.Object3D();
+                this.funcAreaMesh2D.position.z = (this.yAxis + this.floorHigh);
                 //店面
                 if (this.floorData.FuncAreas) {
                     var funcareas_ = this.floorData.FuncAreas;
@@ -311,9 +357,15 @@ var liaohengfan;
                         //创建门店
                         var funcarea_ = new ArchiteFuncArea(funcareas_[i], high_, color_);
                         this.funcAreaMesh.add(funcarea_.mesh);
+                        this.funcAreaMesh2D.add(funcarea_.plane);
                     }
                 }
-                return this.funcAreaMesh;
+                if (is3D_) {
+                    return this.funcAreaMesh;
+                }
+                else {
+                    return this.funcAreaMesh2D;
+                }
             };
             /**         * 获取所有店面名称         */
             ArchiteFloor.prototype.getFuncAreasLabel = function (enabled_) {
@@ -333,7 +385,6 @@ var liaohengfan;
                         var point_ = this.floorData.FuncAreas[i];
                         var position_ = point_.Center;
                         var positionVec3 = new THREE.Vector3(position_[0] || 0, position_[1], y_z);
-                        positionVec3.x -= 50;
                         var material_ = new THREE.SpriteMaterial({
                             map: getLabelTexture(point_.Name || " "),
                             depthTest: false,
@@ -358,6 +409,7 @@ var liaohengfan;
                 this.archite_name = "";
                 this.archite_id = "";
                 this.is3D = true;
+                this.showall = false;
                 /**         * oriData         */
                 this.oriData = null;
                 /**         * 建筑名称         */
@@ -368,8 +420,10 @@ var liaohengfan;
                 this.ArchiteID = "";
                 /**         * 大厦模型         */
                 this.ArchiteMesh = null;
+                this.ArchiteMesh2D = null;
                 /**         * 大厦地面         */
                 this.floorGround = null;
+                this.floorGround2D = null;
                 /**         * 标注         */
                 this.ArchiteSprite = null;
                 this.ArchiteIcon = null;
@@ -391,8 +445,10 @@ var liaohengfan;
                 this.oriData.Floors = this.oriData.Floors || [];
                 /**             * 地面地板             */
                 this.floorGround = new THREE.Object3D();
+                this.floorGround2D = new THREE.Object3D();
                 /**             * 创建大厦3D对象             */
                 this.ArchiteMesh = new THREE.Object3D();
+                this.ArchiteMesh2D = new THREE.Object3D();
                 /**             * 创建标注对象             */
                 this.ArchiteSprite = new THREE.Object3D();
                 this.ArchiteIcon = new THREE.Object3D();
@@ -401,14 +457,16 @@ var liaohengfan;
                 this.ArchiteSprite.add(this.ArchiteLabel);
                 /**             * 旋转             */
                 this.floorGround.rotateX(-(Math.PI / 2));
+                this.floorGround2D.rotateX(-(Math.PI / 2));
                 this.ArchiteMesh.rotateX(-(Math.PI / 2));
+                this.ArchiteMesh2D.rotateX(-(Math.PI / 2));
                 this.ArchiteSprite.rotateX(-(Math.PI / 2));
                 //大厦轮廓
                 //this.parseBuildingOutLine();
             }
             /**         * 解析建筑轮廓         */
             ArchiteBase.prototype.parseBuildingOutLine = function () {
-                this.buildingOutLine = getDataMesh(this.oriData.building);
+                this.buildingOutLine = getDataMesh(this.oriData.building).outline3D;
                 this.buildingOutLine.visible = this.buildingOutLineShow;
                 this.ArchiteMesh.add(this.buildingOutLine);
             };
@@ -489,9 +547,11 @@ var liaohengfan;
                     selectFloors = this.createFloors(floor_);
                     this.architeFloors.push(selectFloors); //添加到已创建模型
                     //展示模型
-                    this.ArchiteMesh.add(selectFloors.getFuncAreasMesh());
+                    this.ArchiteMesh.add(selectFloors.getFuncAreasMesh(true));
+                    this.ArchiteMesh2D.add(selectFloors.getFuncAreasMesh(false));
                     //展示楼层地板
-                    this.floorGround.add(selectFloors.getFloorGround());
+                    this.floorGround.add(selectFloors.getFloorGround(true));
+                    this.floorGround2D.add(selectFloors.getFloorGround(false));
                     //显示标注
                     this.ArchiteIcon.add(selectFloors.getPubPoints(this.pubPointShow));
                     this.ArchiteIcon.add(selectFloors.getFuncAreasLabel(this.funcareaLabelShow));
@@ -823,6 +883,7 @@ var liaohengfan;
                 this.perspectiveControl = null;
                 this.orthographicControl = null;
                 this.cameraControls = [];
+                this.planeScene = null;
                 this.is3D = true;
                 this.labelScene = null;
                 this.labelCamera = null;
@@ -864,6 +925,7 @@ var liaohengfan;
                 //y轴视角移动
                 this.lookatTween = new TWEEN.Tween(this.lookatVector3);
                 this.scene = new THREE.Scene();
+                this.planeScene = new THREE.Scene();
                 this.scene.add(new THREE.AxisHelper(10000));
                 this.labelScene = new THREE.Scene();
                 this.createPerspective();
@@ -992,22 +1054,22 @@ var liaohengfan;
                     this.renderer.render(this.labelScene, this.camera);
                 }
                 else {
-                    this.renderer.render(this.scene, this.labelCamera);
-                    this.renderer.render(this.labelScene, this.labelCamera);
+                    this.renderer.render(this.planeScene, this.camera);
+                    //this.renderer.render(this.planeScene,this.labelCamera);
+                    this.renderer.render(this.labelScene, this.camera);
                 }
             };
             /**         * 3D切换         */
             ArchiteWebGL.prototype.enabled3D = function (enable_) {
-                //this.is3D=enable_;
-                this.is3D = true;
-                if (this.is3D) {
-                    this.perspectiveControl.enabled = true;
-                    this.orthographicControl.enabled = false;
-                }
-                else {
-                    this.perspectiveControl.enabled = false;
-                    this.orthographicControl.enabled = true;
-                }
+                this.is3D = enable_;
+                //this.is3D=true;
+                /*if(this.is3D){
+                    this.perspectiveControl.enabled=true;
+                    this.orthographicControl.enabled=false;
+                }else{
+                    this.perspectiveControl.enabled=false;
+                    this.orthographicControl.enabled=true;
+                }*/
             };
             /**         * 公共设施展示         */
             ArchiteWebGL.prototype.pubPointEnabled = function (enabeld_) {
@@ -1027,12 +1089,12 @@ var liaohengfan;
                 if (archite_) {
                     //添加大厦地板
                     this.scene.add(archite_.floorGround);
+                    this.planeScene.add(archite_.floorGround2D);
                     //将大厦模型添加到场景
                     this.scene.add(archite_.ArchiteMesh);
+                    this.planeScene.add(archite_.ArchiteMesh2D);
                     //将标注信息添加到场景
                     this.labelScene.add(archite_.ArchiteSprite);
-                    //展示大厦轮廓
-                    //archite_.enabledBuildingOutLine(true);
                     //展示默认楼层
                     archite_.showFloorsMeshByID(archite_.getDefaultFoolr());
                     //显示楼层公共服务点
