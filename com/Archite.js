@@ -37,6 +37,16 @@ var liaohengfan;
             }
             return "";
         }
+        /**
+         * 根据经纬度获取坐标点
+         */
+        function getPositionByLonLat(phi_, theta_, radius_) {
+            var position_ = new THREE.Vector3();
+            position_.x = radius_ * Math.sin(phi_) * Math.sin(theta_);
+            position_.y = radius_ * Math.cos(phi_);
+            position_.z = radius_ * Math.sin(phi_) * Math.cos(theta_);
+            return position_;
+        }
         /**     * 信息输出     */
         var msg = function (info_) {
             if (layui.layer) {
@@ -126,7 +136,8 @@ var liaohengfan;
                         buildingExtrudeSettings.amount = (data_.High || high_) * 10;
                         var outLine3DGeo_ = new THREE.ExtrudeGeometry(outLineShape_, buildingExtrudeSettings);
                         var outLine3DMesh_ = new THREE.Mesh(outLine3DGeo_, new THREE.MeshLambertMaterial({
-                            color: (color_ || 0xFFFFFF)
+                            color: (color_ || 0xFFFFFF),
+                            side: THREE.DoubleSide
                         }));
                         color_ += 1;
                         outline.outline3D.add(outLine3DMesh_);
@@ -162,7 +173,8 @@ var liaohengfan;
                         var outLineShape_ = new THREE.Shape(point);
                         var outLine2DGeo_ = new THREE.ShapeGeometry(outLineShape_);
                         var outLine2DMesh_ = new THREE.Mesh(outLine2DGeo_, new THREE.MeshBasicMaterial({
-                            color: (color_ || 0xFFFFFF)
+                            color: (color_ || 0xFFFFFF),
+                            side: THREE.DoubleSide
                         }));
                         /**                             * 楼层高度                             */
                         buildingExtrudeSettings.amount = (high_) * 10;
@@ -594,7 +606,7 @@ var liaohengfan;
                     return;
                 var y_ = this.getFloorY(floor_);
                 //创建楼层
-                var floor_ = new ArchiteFloor(floorData_, y_ * 30);
+                var floor_ = new ArchiteFloor(floorData_, y_ * 50);
                 return floor_;
             };
             return ArchiteBase;
@@ -880,6 +892,14 @@ var liaohengfan;
                 this.camera = null;
                 this.scene = null;
                 this.curArchite = null;
+                this.defalutCameraPosition = new THREE.Vector3(0, 0, 0);
+                this.curCameraPosition = new THREE.Vector3(0, 0, 0);
+                this.defalutCameraTween = null;
+                this.maxPolarAngleInit = Math.PI / 2;
+                this.perspectiveControlSet = {
+                    minPolarAngle: 0,
+                    maxPolarAngle: Math.PI / 2
+                };
                 this.perspectiveControl = null;
                 this.orthographicControl = null;
                 this.cameraControls = [];
@@ -929,6 +949,8 @@ var liaohengfan;
                 this.scene.add(new THREE.AxisHelper(10000));
                 this.labelScene = new THREE.Scene();
                 this.createPerspective();
+                this.defalutCameraTween = new TWEEN.Tween(this.curCameraPosition);
+                this.perspectiveTween = new TWEEN.Tween(this.perspectiveControlSet);
                 this.createOrthographic();
                 this.createLights();
                 this.createMeshSel();
@@ -968,16 +990,16 @@ var liaohengfan;
                 this.orthographicControl = control;
                 control.enabled = false; //默认3D
                 this.cameraControls.push(control);
-                control.update();
+                //control.update();
             };
             /**         * 创建透视投影用于建筑展示         */
             ArchiteWebGL.prototype.createPerspective = function () {
                 this.camera = new THREE.PerspectiveCamera(FOR, V_WIDTH / V_HEIGHT, NEAR, FAER);
                 this.camera.up.set(0, 1, 0);
                 this.camera.lookAt(new THREE.Vector3(0, 0, 0));
-                this.camera.position.z = -1200;
-                this.camera.position.y = 800;
-                this.camera.position.x = -800;
+                this.camera.position.z = 1200;
+                //this.camera.position.y=800;
+                //this.camera.position.x=-800;
                 var control = new THREE.OrbitControls(this.camera, this.controlDom);
                 control.maxPolarAngle = Math.PI / 2;
                 control.minPolarAngle = 0;
@@ -988,7 +1010,7 @@ var liaohengfan;
                 control.enableKeys = false;
                 this.perspectiveControl = control;
                 this.cameraControls.push(control);
-                control.update();
+                //control.update();
             };
             /**         * 创建场景灯光         */
             ArchiteWebGL.prototype.createLights = function () {
@@ -1061,15 +1083,36 @@ var liaohengfan;
             };
             /**         * 3D切换         */
             ArchiteWebGL.prototype.enabled3D = function (enable_) {
-                this.is3D = enable_;
-                //this.is3D=true;
-                /*if(this.is3D){
-                    this.perspectiveControl.enabled=true;
-                    this.orthographicControl.enabled=false;
-                }else{
-                    this.perspectiveControl.enabled=false;
-                    this.orthographicControl.enabled=true;
-                }*/
+                var that_ = this;
+                if (enable_) {
+                    that_.is3D = enable_;
+                    that_.curCameraPosition.copy(that_.camera.position);
+                    that_.perspectiveControl.maxPolarAngle = that_.maxPolarAngleInit;
+                    that_.defalutCameraTween.stop();
+                    that_.defalutCameraTween.to({
+                        x: that_.defalutCameraPosition.x,
+                        y: that_.defalutCameraPosition.y,
+                        z: that_.defalutCameraPosition.z
+                    }, 500).onUpdate(function () {
+                        that_.camera.position.copy(this);
+                        that_.perspectiveControl.update();
+                    });
+                    that_.defalutCameraTween.start();
+                }
+                else {
+                    that_.defalutCameraPosition.copy(this.camera.position);
+                    that_.perspectiveTween.stop();
+                    that_.perspectiveControlSet.maxPolarAngle = Math.PI / 2;
+                    that_.perspectiveTween.to({
+                        maxPolarAngle: 0
+                    }, 1000).onUpdate(function () {
+                        that_.perspectiveControl.maxPolarAngle = this.maxPolarAngle;
+                        that_.perspectiveControl.update();
+                    }).onComplete(function () {
+                        that_.is3D = enable_;
+                    });
+                    that_.perspectiveTween.start();
+                }
             };
             /**         * 公共设施展示         */
             ArchiteWebGL.prototype.pubPointEnabled = function (enabeld_) {
@@ -1087,6 +1130,14 @@ var liaohengfan;
             ArchiteWebGL.prototype.updateMapByArchiteBase = function (archite_) {
                 this.curArchite = archite_;
                 if (archite_) {
+                    //设置相机默认位置
+                    //var theta_=((archite_.oriData.building._xLon||0)+180)*(Math.PI/180);
+                    //var phi_=((archite_.oriData.building._yLat||0)+180)*(Math.PI/180);
+                    var theta_ = (archite_.oriData.building._xLon || 0) * (Math.PI / 180);
+                    var phi_ = (archite_.oriData.building._yLat || 0) * (Math.PI / 180);
+                    this.defalutCameraPosition.copy(getPositionByLonLat(phi_, theta_, 1200));
+                    this.camera.position.copy(this.defalutCameraPosition);
+                    this.perspectiveControl.update();
                     //添加大厦地板
                     this.scene.add(archite_.floorGround);
                     this.planeScene.add(archite_.floorGround2D);
