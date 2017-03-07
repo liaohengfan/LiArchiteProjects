@@ -1,0 +1,40 @@
+{
+  "name": "@types/underscore",
+  "version": "1.7.36",
+  "description": "TypeScript definitions for Underscore",
+  "license": "MIT",
+  "author": "Boris Yankov <https://github.com/borisyankov/>, Josh Baldwin <https://github.com/jbaldwin/>, Christopher Currens <https://github.com/ccurrens/>",
+  "main": "",
+  "repository": {
+    "type": "git",
+    "url": "https://www.github.com/DefinitelyTyped/DefinitelyTyped.git"
+  },
+  "scripts": {},
+  "dependencies": {},
+  "peerDependencies": {},
+  "typings": "index.d.ts",
+  "typesPublisherContentHash": "defd6114ad189a8ed3f3e9a6c3b20ce33fd45d39b48ad56099036bd95379c02a",
+  "_id": "@types/underscore@1.7.36",
+  "dist": {
+    "shasum": "e2900fd4ff7a71b742d4a7ab98ffe17b04b068c0",
+    "tarball": "https://registry.npmjs.org/@types/underscore/-/underscore-1.7.36.tgz"
+  },
+  "maintainers": [
+    {
+      "name": "types",
+      "email": "ryan.cavanaugh@microsoft.com"
+    }
+  ],
+  "_npmUser": {
+    "name": "types",
+    "email": "ts-npm-types@microsoft.com"
+  },
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/underscore-1.7.36.tgz_1480350677072_0.6668506625574082"
+  },
+  "directories": {},
+  "_shasum": "e2900fd4ff7a71b742d4a7ab98ffe17b04b068c0",
+  "_resolved": "https://registry.npmjs.org/@types/underscore/-/underscore-1.7.36.tgz",
+  "_from": "@types/underscore@latest"
+}
