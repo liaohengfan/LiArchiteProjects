@@ -99,23 +99,23 @@ var ArchiteFloor = (function () {
                 break;
             case 2:
                 //3D
-                this.applyStuts(this.floorGround, true, .1);
-                this.applyStuts(this.funcAreaMesh, true, .1);
+                this.applyStuts(this.floorGround, true, 0.1);
+                this.applyStuts(this.funcAreaMesh, true, 0.1);
                 //2D
-                this.applyStuts(this.floorGround2D, true, .1);
-                this.applyStuts(this.funcAreaMesh2D, true, .1);
-                this.applyStuts(this.PubPoints, true, .1);
-                this.applyStuts(this.funcAreasLabels, true, .1);
+                this.applyStuts(this.floorGround2D, true, 0.1);
+                this.applyStuts(this.funcAreaMesh2D, true, 0.1);
+                this.applyStuts(this.PubPoints, true, 0.1);
+                this.applyStuts(this.funcAreasLabels, true, 0.1);
                 break;
             default:
                 //3D
-                this.applyStuts(this.floorGround, false, .1);
-                this.applyStuts(this.funcAreaMesh, false, .1);
+                this.applyStuts(this.floorGround, false, 0.1);
+                this.applyStuts(this.funcAreaMesh, false, 0.1);
                 //2D
-                this.applyStuts(this.floorGround2D, false, .1);
-                this.applyStuts(this.funcAreaMesh2D, false, .1);
-                this.applyStuts(this.PubPoints, false, .1);
-                this.applyStuts(this.funcAreasLabels, false, .1);
+                this.applyStuts(this.floorGround2D, false, 0.1);
+                this.applyStuts(this.funcAreaMesh2D, false, 0.1);
+                this.applyStuts(this.PubPoints, false, 0.1);
+                this.applyStuts(this.funcAreasLabels, false, 0.1);
                 break;
         }
     };
@@ -249,7 +249,6 @@ var ArchiteFloor = (function () {
                     color: 0xFFFFFF
                 });
                 material_.map.needsUpdate = true;
-                material_.sizeAttenuation = false;
                 var label_ = new THREE.Sprite(material_);
                 label_.lockX = positionVec3.x;
                 label_.lockY = positionVec3.y;

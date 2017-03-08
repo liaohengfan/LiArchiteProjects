@@ -4,17 +4,17 @@
 /**
  * libs
  */
-///<reference types="@types/d3/index.d.ts" />
-///<reference types="@types/jquery/index.d.ts" />
-///<reference types="@types/three/index.d.ts" />
-///<reference types="@types/three/detecotr.d.ts" />
-///<reference types="@types/underscore/index.d.ts" />
-///<ref-erence types="@types/tweenjs/index.d.ts" />
+///<reference types="../@types/d3/index.d.ts" />
+///<reference types="../@types/jquery/index.d.ts" />
+///<reference types="../@types/three/index.d.ts" />
+///<reference types="../@types/three/detecotr.d.ts" />
+///<reference types="../@types/underscore/index.d.ts" />
+///<reference types="../@types/tweenjs/index.d.ts" />
 /**
  * coms
  */
-///<ref-erence types="ArchiteTools.ts" />
-///<ref-erence types="ArchiteBase.ts" />
+///<reference types="ArchiteTools.ts" />
+///<reference types="ArchiteBase.ts" />
 /**     * UI管理     */
 var ArchiteUI = (function () {
     function ArchiteUI(dom_, webgl_) {

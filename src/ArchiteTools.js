@@ -29,8 +29,8 @@ function getPositionByLonLat(phi_, theta_, radius_) {
 }
 /**     * 更新广告牌位置     */
 function updateBillBoards(billboards_, proMatrix_) {
-    var V_WHalf = V_WIDTH >> 1;
-    var V_HHalf = V_HEIGHT >> 1;
+    var V_WHalf = (V_WIDTH || 0) >> 1;
+    var V_HHalf = (V_HEIGHT || 0) >> 1;
     for (var i = 0; i < billboards_.children.length; i++) {
         var sprite = billboards_.children[i];
         //var vec = new THREE.Vector3(sprite.lockX, 0, -sprite.lockY);
@@ -74,8 +74,8 @@ function getLabelTexture(str_) {
      ctx_.fillRect(0,0,100,50);*/
     ctx_.strokeStyle = '#FFFFFF'; //边框颜色
     ctx_.fillStyle = '#000000'; //填充颜色
-    ctx_.lineWidth = '4';
-    ctx_.font = "32px Arial";
+    ctx_.lineWidth = 4;
+    ctx_.font = "32px Microsoft Yahei";
     //ctx_.strokeText(str_,10,40);
     ctx_.fillText(str_, 10, 40);
     var texture_ = new THREE.Texture(canvas);

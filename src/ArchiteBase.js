@@ -337,8 +337,8 @@ var ArchiteBase = (function () {
             return;
         var y_ = this.getFloorY(floor_);
         //创建楼层
-        var floor_ = new ArchiteFloor(floorData_, y_ * 80);
-        return floor_;
+        var curFloor_ = new ArchiteFloor(floorData_, y_ * 80);
+        return curFloor_;
     };
     return ArchiteBase;
 }());

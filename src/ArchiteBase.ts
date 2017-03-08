@@ -4,7 +4,6 @@
 /**
  * libs
  */
-
 ///<reference path="../@types/d3/index.d.ts" />
 ///<reference path="../@types/jquery/index.d.ts" />
 ///<reference path="../@types/three/index.d.ts" />
@@ -22,7 +21,7 @@
 ///<reference path="ArchiteFloor.ts" />
 /**     * 建筑基类     */
 class ArchiteBase{
-    constructor(data_:Object,is3D_){
+    constructor(data_:any,is3D_){
         this.oriData=data_;
         this.ArchiteName=this.oriData.building.Name;
         this.ArchiteOutLine=this.oriData.building.Outline;
@@ -71,13 +70,13 @@ class ArchiteBase{
     showall:Boolean=false;
 
     /**         * oriData         */
-    oriData:Object=null;
+    oriData:any=null;
 
     /**         * 建筑名称         */
     ArchiteName:String="";
 
     /**         * 建筑轮廓         */
-    ArchiteOutLine:Array=[];
+    ArchiteOutLine:Array<any>=[];
 
     /**         * 建筑id         */
     ArchiteID:String="";
@@ -99,7 +98,7 @@ class ArchiteBase{
     architeFloors=[];
 
     /**         * 轮廓模型         */
-    buildingOutLine:Object=null;
+    buildingOutLine:THREE.Object3D=null;
     buildingOutLineShow=false;
     /**         * 解析建筑轮廓         */
     parseBuildingOutLine(){
@@ -395,8 +394,8 @@ class ArchiteBase{
         var y_=this.getFloorY(floor_);
 
         //创建楼层
-        var floor_=new ArchiteFloor(floorData_,y_*80);
+        var curFloor_=new ArchiteFloor(floorData_,y_*80);
 
-        return floor_;
+        return curFloor_;
     }
 }
