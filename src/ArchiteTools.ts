@@ -10,7 +10,6 @@
 ///<reference path="../@types/three/detector.d.ts" />
 ///<reference path="../@types/underscore/index.d.ts" />
 ///<reference path="../@types/tweenjs/index.d.ts" />
-
 /**
  * coms
  */
@@ -19,6 +18,7 @@
 ///<reference path="ArchiteBase.ts" />
 ///<reference path="ArchiteRender.ts" />
 ///<reference path="ArchiteFloor.ts" />
+
 /**
  * 根据经纬度获取坐标点
  */
