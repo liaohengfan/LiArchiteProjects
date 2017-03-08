@@ -594,7 +594,6 @@ var ArchiteFloor = (function () {
                     color: 0xFFFFFF
                 });
                 material_.map.needsUpdate = true;
-                material_.sizeAttenuation = false;
                 var label_ = new THREE.Sprite(material_);
                 label_.lockX = positionVec3.x;
                 label_.lockY = positionVec3.y;
@@ -1138,8 +1137,8 @@ function getPositionByLonLat(phi_, theta_, radius_) {
 }
 /**     * 更新广告牌位置     */
 function updateBillBoards(billboards_, proMatrix_) {
-    var V_WHalf = (V_WIDTH |  >> 1);
-    var V_HHalf = V_HEIGHT >> 1;
+    var V_WHalf = (V_WIDTH || 0) >> 1;
+    var V_HHalf = (V_HEIGHT || 0) >> 1;
     for (var i = 0; i < billboards_.children.length; i++) {
         var sprite = billboards_.children[i];
         //var vec = new THREE.Vector3(sprite.lockX, 0, -sprite.lockY);
