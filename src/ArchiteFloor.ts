@@ -296,7 +296,7 @@ class ArchiteFloor{
                 var material_=new THREE.SpriteMaterial({
                     map:getLabelTexture(point_.Name||" "),
                     color:0xFFFFFF
-                });1
+                });
                 material_.map.needsUpdate=true;
                 var label_=new THREE.Sprite(material_);
 
