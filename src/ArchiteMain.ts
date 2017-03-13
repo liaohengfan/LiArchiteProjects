@@ -61,7 +61,7 @@ function getIconUrlByType(type_){
 
 /**     * 信息输出     */
 let msg=function(info_){
-    if(layui.layer){
+    if(layui&&layui.layer){
         layui.layer.msg(info_);
     }else{
         alert(info_);
