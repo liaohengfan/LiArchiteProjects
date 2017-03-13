@@ -169,6 +169,11 @@ class ArchiteFloor{
 
                 sprite_.defaultMaterial=material_;
                 sprite_.scale.set(24,24,1);
+
+                //sprite visible judge
+                sprite_.width=24;
+                sprite_.height=24;
+
                 sprite_.position.copy(positionVec3);
                 this.PubPoints.add(sprite_);
 
@@ -298,6 +303,11 @@ class ArchiteFloor{
                 label_.lockX=positionVec3.x;
                 label_.lockY=positionVec3.y;
                 label_.lockZ=lockZ;
+
+
+                //sprite visible judge
+                label_.width=50;
+                label_.height=25;
 
                 label_.defaultMaterial=material_;
                 label_.scale.set(100,50,1);
