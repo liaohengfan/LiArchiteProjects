@@ -873,13 +873,13 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		switch ( event.touches.length ) {
 
-			case 1:	// one-fingered touch: rotate
+			case 1:	 // three-fingered touch: pan
 
-				if ( scope.enableRotate === false ) return;
+				if ( scope.enablePan === false ) return;
 
-				handleTouchStartRotate( event );
+				handleTouchStartPan( event );
 
-				state = STATE.TOUCH_ROTATE;
+				state = STATE.TOUCH_PAN;
 
 				break;
 
@@ -893,13 +893,13 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 				break;
 
-			case 3: // three-fingered touch: pan
+			case 3:// one-fingered touch: rotate
 
-				if ( scope.enablePan === false ) return;
+				if ( scope.enableRotate === false ) return;
 
-				handleTouchStartPan( event );
+				handleTouchStartRotate( event );
 
-				state = STATE.TOUCH_PAN;
+				state = STATE.TOUCH_ROTATE;
 
 				break;
 
@@ -926,18 +926,17 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 		switch ( event.touches.length ) {
 
-			//case 1: // one-fingered touch: rotate
-			case 2: // one-fingered touch: rotate
+			case 1: // three-fingered touch: pan
 
-				if ( scope.enableRotate === false ) return;
-				if ( state !== STATE.TOUCH_ROTATE ) return; // is this needed?...
+				if ( scope.enablePan === false ) return;
+				if ( state !== STATE.TOUCH_PAN ) return; // is this needed?...
 
-				handleTouchMoveRotate( event );
+				handleTouchMovePan( event );
+
 
 				break;
 
-			//case 2: // two-fingered touch: dolly
-			case 1: // two-fingered touch: dolly
+			case 2: // two-fingered touch: dolly
 
 				if ( scope.enableZoom === false ) return;
 				if ( state !== STATE.TOUCH_DOLLY ) return; // is this needed?...
@@ -946,13 +945,12 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 				break;
 
-			case 3: // three-fingered touch: pan
+			case 3:// one-fingered touch: rotate
 
-				if ( scope.enablePan === false ) return;
-				if ( state !== STATE.TOUCH_PAN ) return; // is this needed?...
+				if ( scope.enableRotate === false ) return;
+				if ( state !== STATE.TOUCH_ROTATE ) return; // is this needed?...
 
-				handleTouchMovePan( event );
-
+				handleTouchMoveRotate( event );
 				break;
 
 			default:
