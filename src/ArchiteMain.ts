@@ -2,6 +2,7 @@
  * Created by liaohengfan on 2017/3/7.
  */
 
+
 /**
  * libs
  */
@@ -20,15 +21,13 @@
 ///<reference path="ArchiteTools.ts" />
 ///<reference path="ArchiteBase.ts" />
 ///<reference path="ArchiteRender.ts" />
-///<reference path="ArchiteFloor.ts" />
 
-
-let V_WIDTH:Number=1280;
-let V_HEIGHT:Number=720;
-let FOR:Number=60;
-let NEAR:Number=10;
-let FAER:Number=10000;
-let PI2:Number=Math.PI*2;
+var V_WIDTH:any=1280;
+var V_HEIGHT:any=720;
+var FOR:any=60;
+var NEAR:any=10;
+var FAER:any=10000;
+var PI2:any=Math.PI*2;
 
 
 const ICON_ASSET_BASE="asset/PublicPointIco/";
@@ -76,7 +75,6 @@ class ArchiteMain{
         if(!Detector.webgl){
             msg("该浏览器不支持webgl / Canvas, 请更换浏览器后尝试！");
             throw new Error("该浏览器不支持webgl / Canvas, 请更换浏览器后尝试！");
-            return;
         }
 
         this.architewebgl=new ArchiteWebGL(container_,control_);

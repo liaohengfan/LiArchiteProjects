@@ -4,12 +4,14 @@
 /**
  * libs
  */
+
 ///<reference path="../@types/d3/index.d.ts" />
 ///<reference path="../@types/jquery/index.d.ts" />
 ///<reference path="../@types/three/index.d.ts" />
 ///<reference path="../@types/three/detector.d.ts" />
 ///<reference path="../@types/underscore/index.d.ts" />
 ///<reference path="../@types/tweenjs/index.d.ts" />
+
 /**
  * coms
  */
@@ -17,7 +19,6 @@
 ///<reference path="ArchiteMain.ts" />
 ///<reference path="ArchiteBase.ts" />
 ///<reference path="ArchiteRender.ts" />
-///<reference path="ArchiteFloor.ts" />
 
 /**
  * 根据经纬度获取坐标点
@@ -31,8 +32,8 @@ function getPositionByLonLat(phi_,theta_,radius_){
 }
 /**     * 更新广告牌位置     */
 function updateBillBoards(billboards_,proMatrix_){
-    var V_WHalf:Number=(V_WIDTH||0)>>1;
-    var V_HHalf:Number=(V_HEIGHT||0)>>1;
+    var V_WHalf:any=Number(V_WIDTH>>1);
+    var V_HHalf:any=Number(V_HEIGHT>>1);
     for(var i = 0 ; i < billboards_.children.length; i++) {
         var sprite = billboards_.children[i];
         //var vec = new THREE.Vector3(sprite.lockX, 0, -sprite.lockY);

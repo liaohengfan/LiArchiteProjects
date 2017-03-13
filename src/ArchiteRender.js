@@ -16,8 +16,6 @@
 ///<reference path="ArchiteTools.ts" />
 ///<reference path="ArchiteMain.ts" />
 ///<reference path="ArchiteBase.ts" />
-///<reference path="ArchiteRender.ts" />
-///<reference path="ArchiteFloor.ts" />
 /**     * WebGL     */
 var ArchiteWebGL = (function () {
     function ArchiteWebGL(dom_, controlDom_) {
@@ -80,7 +78,7 @@ var ArchiteWebGL = (function () {
             this.renderer = new THREE.WebGLRenderer({ antialias: true });
         }
         else {
-            this.renderer = new THREE.CanvasRenderer({ antialias: true });
+            this.renderer = new THREE.CanvasRenderer();
         }
         //y轴视角移动
         this.lookatTween = new TWEEN.Tween(this.lookatVector3);

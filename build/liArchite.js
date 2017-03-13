@@ -16,8 +16,7 @@
 ///<reference path="ArchiteTools.ts" />
 ///<reference path="ArchiteMain.ts" />
 ///<reference path="ArchiteRender.ts" />
-///<reference path="ArchiteFloor.ts" />
-/**     * 建筑基类     */
+/**     * 建筑基类  remove libs concat   */
 var ArchiteBase = (function () {
     function ArchiteBase(data_, is3D_) {
         this.archite_show = true;
@@ -172,14 +171,12 @@ var ArchiteBase = (function () {
     /**         * 展示楼层模型         */
     ArchiteBase.prototype.showFloorsMeshByID = function (floor_, otherVisiblely_) {
         if (otherVisiblely_ === void 0) { otherVisiblely_ = false; }
-        var selectFloors = null;
-        selectFloors = _.findWhere(this.architeFloors, { archite_id: floor_ });
+        var selectFloors = _.findWhere(this.architeFloors, { archite_id: floor_ });
         /**
          * 需要隐藏的楼层
          * @type {any}
          */
-        var hideFloors = null;
-        hideFloors = _.reject(this.architeFloors, function (item_) {
+        var hideFloors = _.reject(this.architeFloors, function (item_) {
             return item_.archite_id == floor_;
         });
         if (hideFloors && hideFloors.length) {
@@ -226,12 +223,11 @@ var ArchiteBase = (function () {
     ArchiteBase.prototype.search = function (name_) {
         //检索数据中是否存在
         var floorDatas_ = _.filter(this.oriData.Floors || [], function (floor_) {
-            if (_.findWhere(floor_.FuncAreas || [], { Name: name_ })) {
+            var tempFloor_ = _.findWhere(floor_.FuncAreas || [], { Name: name_ });
+            if (tempFloor_) {
                 return true;
             }
-            else {
-                return false;
-            }
+            return false;
         });
         //不存在
         if (!floorDatas_ || !floorDatas_.length) {
@@ -627,7 +623,6 @@ var ArchiteFloor = (function () {
 ///<reference path="ArchiteTools.ts" />
 ///<reference path="ArchiteBase.ts" />
 ///<reference path="ArchiteRender.ts" />
-///<reference path="ArchiteFloor.ts" />
 var V_WIDTH = 1280;
 var V_HEIGHT = 720;
 var FOR = 60;
@@ -674,7 +669,6 @@ var ArchiteMain = (function () {
         if (!Detector.webgl) {
             msg("该浏览器不支持webgl / Canvas, 请更换浏览器后尝试！");
             throw new Error("该浏览器不支持webgl / Canvas, 请更换浏览器后尝试！");
-            return;
         }
         this.architewebgl = new ArchiteWebGL(container_, control_);
     }
@@ -708,8 +702,6 @@ var ArchiteMain = (function () {
 ///<reference path="ArchiteTools.ts" />
 ///<reference path="ArchiteMain.ts" />
 ///<reference path="ArchiteBase.ts" />
-///<reference path="ArchiteRender.ts" />
-///<reference path="ArchiteFloor.ts" />
 /**     * WebGL     */
 var ArchiteWebGL = (function () {
     function ArchiteWebGL(dom_, controlDom_) {
@@ -772,7 +764,7 @@ var ArchiteWebGL = (function () {
             this.renderer = new THREE.WebGLRenderer({ antialias: true });
         }
         else {
-            this.renderer = new THREE.CanvasRenderer({ antialias: true });
+            this.renderer = new THREE.CanvasRenderer();
         }
         //y轴视角移动
         this.lookatTween = new TWEEN.Tween(this.lookatVector3);
@@ -1124,7 +1116,6 @@ var ArchiteWebGL = (function () {
 ///<reference path="ArchiteMain.ts" />
 ///<reference path="ArchiteBase.ts" />
 ///<reference path="ArchiteRender.ts" />
-///<reference path="ArchiteFloor.ts" />
 /**
  * 根据经纬度获取坐标点
  */
@@ -1137,8 +1128,8 @@ function getPositionByLonLat(phi_, theta_, radius_) {
 }
 /**     * 更新广告牌位置     */
 function updateBillBoards(billboards_, proMatrix_) {
-    var V_WHalf = (V_WIDTH || 0) >> 1;
-    var V_HHalf = (V_HEIGHT || 0) >> 1;
+    var V_WHalf = Number(V_WIDTH >> 1);
+    var V_HHalf = Number(V_HEIGHT >> 1);
     for (var i = 0; i < billboards_.children.length; i++) {
         var sprite = billboards_.children[i];
         //var vec = new THREE.Vector3(sprite.lockX, 0, -sprite.lockY);

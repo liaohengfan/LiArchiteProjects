@@ -1,7 +1,6 @@
 /**
  * Created by liaohengfan on 2017/3/7.
  */
-
 /**
  * libs
  */
@@ -20,8 +19,6 @@
 ///<reference path="ArchiteTools.ts" />
 ///<reference path="ArchiteMain.ts" />
 ///<reference path="ArchiteBase.ts" />
-///<reference path="ArchiteRender.ts" />
-///<reference path="ArchiteFloor.ts" />
 
 /**     * WebGL     */
 class ArchiteWebGL{
@@ -63,7 +60,7 @@ class ArchiteWebGL{
         if(Detector.webgl){
             this.renderer = new THREE.WebGLRenderer({antialias: true});
         }else{
-            this.renderer=new THREE.CanvasRenderer({antialias: true});
+            this.renderer=new THREE.CanvasRenderer();
         }
 
         //y轴视角移动

@@ -16,7 +16,6 @@
 ///<reference path="ArchiteTools.ts" />
 ///<reference path="ArchiteBase.ts" />
 ///<reference path="ArchiteRender.ts" />
-///<reference path="ArchiteFloor.ts" />
 var V_WIDTH = 1280;
 var V_HEIGHT = 720;
 var FOR = 60;
@@ -63,7 +62,6 @@ var ArchiteMain = (function () {
         if (!Detector.webgl) {
             msg("该浏览器不支持webgl / Canvas, 请更换浏览器后尝试！");
             throw new Error("该浏览器不支持webgl / Canvas, 请更换浏览器后尝试！");
-            return;
         }
         this.architewebgl = new ArchiteWebGL(container_, control_);
     }
