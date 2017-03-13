@@ -17,6 +17,15 @@
 ///<reference path="ArchiteMain.ts" />
 ///<reference path="ArchiteRender.ts" />
 ///<reference path="ArchiteFloor.ts" />
+/**
+ * clear reset projects 2017.03.13
+ *
+ * AM 10：23
+ *  git change test
+ *
+ *  changes AM 10:37
+ *
+ */
 /**     * 建筑基类     */
 var ArchiteBase = (function () {
     function ArchiteBase(data_, is3D_) {
@@ -495,6 +504,9 @@ var ArchiteFloor = (function () {
                 sprite_.lockZ = lockZ;
                 sprite_.defaultMaterial = material_;
                 sprite_.scale.set(24, 24, 1);
+                //sprite visible judge
+                sprite_.width = 24;
+                sprite_.height = 24;
                 sprite_.position.copy(positionVec3);
                 this.PubPoints.add(sprite_);
             }
@@ -598,6 +610,9 @@ var ArchiteFloor = (function () {
                 label_.lockX = positionVec3.x;
                 label_.lockY = positionVec3.y;
                 label_.lockZ = lockZ;
+                //sprite visible judge
+                label_.width = 50;
+                label_.height = 25;
                 label_.defaultMaterial = material_;
                 label_.scale.set(100, 50, 1);
                 label_.position.copy(positionVec3);
@@ -1135,6 +1150,17 @@ function getPositionByLonLat(phi_, theta_, radius_) {
     position_.z = radius_ * Math.sin(phi_) * Math.cos(theta_);
     return position_;
 }
+function Rect(minx, miny, maxx, maxy) {
+    this.tl = [minx || 0, miny || 0]; //top left point
+    this.br = [maxx || 0, maxy || 0]; //bottom right point
+}
+Rect.prototype.isCollide = function (rect) {
+    if (rect.br[0] < this.tl[0] || rect.tl[0] > this.br[0] ||
+        rect.br[1] < this.tl[1] || rect.tl[1] > this.br[1]) {
+        return false;
+    }
+    return true;
+};
 /**     * 更新广告牌位置     */
 function updateBillBoards(billboards_, proMatrix_) {
     var V_WHalf = (V_WIDTH || 0) >> 1;
@@ -1149,6 +1175,41 @@ function updateBillBoards(billboards_, proMatrix_) {
         var z = Math.round(vec.z * V_HHalf);
         //sprite.position.set(x, y, sprite.lockZ);
         sprite.position.set(x, y, z);
+        //check collision with the former sprites
+        var visible = true;
+        var visibleMargin = 5;
+        for (var j = 0; j < i; j++) {
+            var img = sprite.material.map.image;
+            if (!img) {
+                visible = false;
+                break;
+            }
+            if (!(sprite.width) || !(sprite.height)) {
+                visible = false;
+                break;
+            }
+            var imgWidthHalf1 = sprite.width / 2;
+            var imgHeightHalf1 = sprite.height / 2;
+            var rect1 = new Rect(sprite.position.x - imgWidthHalf1, sprite.position.y - imgHeightHalf1, sprite.position.x + imgHeightHalf1, sprite.position.y + imgHeightHalf1);
+            var sprite2 = billboards_.children[j];
+            var sprite2Pos = sprite2.position;
+            var imgWidthHalf2 = sprite2.width / 2;
+            var imgHeightHalf2 = sprite2.height / 2;
+            var rect2 = new Rect(sprite2Pos.x - imgWidthHalf2, sprite2Pos.y - imgHeightHalf2, sprite2Pos.x + imgHeightHalf2, sprite2Pos.y + imgHeightHalf2);
+            if (sprite2.visible && rect1.isCollide(rect2)) {
+                visible = false;
+                break;
+            }
+            rect1.tl[0] -= visibleMargin;
+            rect1.tl[1] -= visibleMargin;
+            rect2.tl[0] -= visibleMargin;
+            rect2.tl[1] -= visibleMargin;
+            if (sprite.visible == false && rect1.isCollide(rect2)) {
+                visible = false;
+                break;
+            }
+        }
+        sprite.visible = visible;
     }
 }
 /**
