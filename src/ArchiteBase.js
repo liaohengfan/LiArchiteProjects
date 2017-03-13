@@ -19,6 +19,10 @@
 ///<reference path="ArchiteFloor.ts" />
 /**
  * clear reset projects 2017.03.13
+ *
+ * AM 10：23
+ *  git change test
+ *
  */
 /**     * 建筑基类     */
 var ArchiteBase = (function () {
