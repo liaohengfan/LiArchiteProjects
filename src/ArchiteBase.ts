@@ -19,6 +19,11 @@
 ///<reference path="ArchiteMain.ts" />
 ///<reference path="ArchiteRender.ts" />
 ///<reference path="ArchiteFloor.ts" />
+
+/**
+ * clear reset projects 2017.03.13
+ */
+
 /**     * 建筑基类     */
 class ArchiteBase{
     constructor(data_:any,is3D_){
