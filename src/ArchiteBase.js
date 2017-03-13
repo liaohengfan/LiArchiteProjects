@@ -16,7 +16,11 @@
 ///<reference path="ArchiteTools.ts" />
 ///<reference path="ArchiteMain.ts" />
 ///<reference path="ArchiteRender.ts" />
-/**     * 建筑基类  remove libs concat   */
+///<reference path="ArchiteFloor.ts" />
+/**
+ * clear reset projects 2017.03.13
+ */
+/**     * 建筑基类     */
 var ArchiteBase = (function () {
     function ArchiteBase(data_, is3D_) {
         this.archite_show = true;
@@ -171,12 +175,14 @@ var ArchiteBase = (function () {
     /**         * 展示楼层模型         */
     ArchiteBase.prototype.showFloorsMeshByID = function (floor_, otherVisiblely_) {
         if (otherVisiblely_ === void 0) { otherVisiblely_ = false; }
-        var selectFloors = _.findWhere(this.architeFloors, { archite_id: floor_ });
+        var selectFloors = null;
+        selectFloors = _.findWhere(this.architeFloors, { archite_id: floor_ });
         /**
          * 需要隐藏的楼层
          * @type {any}
          */
-        var hideFloors = _.reject(this.architeFloors, function (item_) {
+        var hideFloors = null;
+        hideFloors = _.reject(this.architeFloors, function (item_) {
             return item_.archite_id == floor_;
         });
         if (hideFloors && hideFloors.length) {
@@ -223,11 +229,12 @@ var ArchiteBase = (function () {
     ArchiteBase.prototype.search = function (name_) {
         //检索数据中是否存在
         var floorDatas_ = _.filter(this.oriData.Floors || [], function (floor_) {
-            var tempFloor_ = _.findWhere(floor_.FuncAreas || [], { Name: name_ });
-            if (tempFloor_) {
+            if (_.findWhere(floor_.FuncAreas || [], { Name: name_ })) {
                 return true;
             }
-            return false;
+            else {
+                return false;
+            }
         });
         //不存在
         if (!floorDatas_ || !floorDatas_.length) {

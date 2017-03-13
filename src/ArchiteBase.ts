@@ -4,7 +4,6 @@
 /**
  * libs
  */
-
 ///<reference path="../@types/d3/index.d.ts" />
 ///<reference path="../@types/jquery/index.d.ts" />
 ///<reference path="../@types/three/index.d.ts" />
@@ -19,8 +18,13 @@
 ///<reference path="ArchiteTools.ts" />
 ///<reference path="ArchiteMain.ts" />
 ///<reference path="ArchiteRender.ts" />
+///<reference path="ArchiteFloor.ts" />
 
-/**     * 建筑基类  remove libs concat   */
+/**
+ * clear reset projects 2017.03.13
+ */
+
+/**     * 建筑基类     */
 class ArchiteBase{
     constructor(data_:any,is3D_){
         this.oriData=data_;
@@ -127,18 +131,18 @@ class ArchiteBase{
         var trueFloors=null;
         var y_=0;
         if(id_>0){
-            trueFloors=_.filter(this.oriData.Floors,function(item_:any){
+            trueFloors=_.filter(this.oriData.Floors,function(item_){
                 return ((item_._id<id_)&&(item_._id>=0));
             });
-            _.map(trueFloors,function(item_:any){
+            _.map(trueFloors,function(item_){
                 y_+=(item_.High||0);
             });
             return y_;
         }else{
-            trueFloors=_.filter(this.oriData.Floors,function(item_:any){
+            trueFloors=_.filter(this.oriData.Floors,function(item_){
                 return ((item_._id>=id_)&&(item_._id<=0));
             });
-            _.map(trueFloors,function(item_:any){
+            _.map(trueFloors,function(item_){
                 y_-=(item_.High||0);
             });
             return y_;
@@ -204,13 +208,16 @@ class ArchiteBase{
 
     /**         * 展示楼层模型         */
     showFloorsMeshByID(floor_,otherVisiblely_=false){
-        var selectFloors=_.findWhere(this.architeFloors,{archite_id:floor_});
+
+        var selectFloors=null;
+        selectFloors=_.findWhere(this.architeFloors,{archite_id:floor_});
 
         /**
          * 需要隐藏的楼层
          * @type {any}
          */
-        var hideFloors=_.reject(this.architeFloors,function(item_){
+        var hideFloors=null;
+        hideFloors=_.reject(this.architeFloors,function(item_){
             return item_.archite_id==floor_;
         });
 
@@ -264,12 +271,12 @@ class ArchiteBase{
     search(name_){
 
         //检索数据中是否存在
-        var floorDatas_=_.filter(this.oriData.Floors||[],function(floor_:any){
-            var tempFloor_=_.findWhere(floor_.FuncAreas||[],{Name:name_});
-            if(tempFloor_){
+        var floorDatas_=_.filter(this.oriData.Floors||[],function(floor_){
+            if(_.findWhere(floor_.FuncAreas||[],{Name:name_})){
                 return true;
+            }else{
+                return false;
             }
-            return false;
         });
 
         //不存在
@@ -296,7 +303,7 @@ class ArchiteBase{
     /**         * 显示所有楼层         */
     showAllFloors(){
         var that_=this;
-        _.map(that_.oriData.Floors||[],function(floor_:any,index_:any){
+        _.map(that_.oriData.Floors||[],function(floor_,index_){
             var curFloor_=_.findWhere(that_.architeFloors,{archite_id:floor_._id});
             if(curFloor_){//楼层存在则显示
 
