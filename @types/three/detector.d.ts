@@ -14,3 +14,4 @@ interface DetectorStatic {
 }
 
 declare var Detector: DetectorStatic;
+export {Detector}

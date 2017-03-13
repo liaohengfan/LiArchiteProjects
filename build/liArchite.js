@@ -642,7 +642,6 @@ var ArchiteFloor = (function () {
 ///<reference path="ArchiteTools.ts" />
 ///<reference path="ArchiteBase.ts" />
 ///<reference path="ArchiteRender.ts" />
-///<reference path="ArchiteFloor.ts" />
 var V_WIDTH = 1280;
 var V_HEIGHT = 720;
 var FOR = 60;
@@ -689,7 +688,6 @@ var ArchiteMain = (function () {
         if (!Detector.webgl) {
             msg("该浏览器不支持webgl / Canvas, 请更换浏览器后尝试！");
             throw new Error("该浏览器不支持webgl / Canvas, 请更换浏览器后尝试！");
-            return;
         }
         this.architewebgl = new ArchiteWebGL(container_, control_);
     }
@@ -723,8 +721,6 @@ var ArchiteMain = (function () {
 ///<reference path="ArchiteTools.ts" />
 ///<reference path="ArchiteMain.ts" />
 ///<reference path="ArchiteBase.ts" />
-///<reference path="ArchiteRender.ts" />
-///<reference path="ArchiteFloor.ts" />
 /**     * WebGL     */
 var ArchiteWebGL = (function () {
     function ArchiteWebGL(dom_, controlDom_) {
@@ -787,7 +783,7 @@ var ArchiteWebGL = (function () {
             this.renderer = new THREE.WebGLRenderer({ antialias: true });
         }
         else {
-            this.renderer = new THREE.CanvasRenderer({ antialias: true });
+            this.renderer = new THREE.CanvasRenderer();
         }
         //y轴视角移动
         this.lookatTween = new TWEEN.Tween(this.lookatVector3);
@@ -1139,7 +1135,6 @@ var ArchiteWebGL = (function () {
 ///<reference path="ArchiteMain.ts" />
 ///<reference path="ArchiteBase.ts" />
 ///<reference path="ArchiteRender.ts" />
-///<reference path="ArchiteFloor.ts" />
 /**
  * 根据经纬度获取坐标点
  */
@@ -1163,8 +1158,8 @@ Rect.prototype.isCollide = function (rect) {
 };
 /**     * 更新广告牌位置     */
 function updateBillBoards(billboards_, proMatrix_) {
-    var V_WHalf = (V_WIDTH || 0) >> 1;
-    var V_HHalf = (V_HEIGHT || 0) >> 1;
+    var V_WHalf = Number(V_WIDTH >> 1);
+    var V_HHalf = Number(V_HEIGHT >> 1);
     for (var i = 0; i < billboards_.children.length; i++) {
         var sprite = billboards_.children[i];
         //var vec = new THREE.Vector3(sprite.lockX, 0, -sprite.lockY);
