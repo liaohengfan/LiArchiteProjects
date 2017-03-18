@@ -30,12 +30,13 @@ function init(){
     uimana_.openScale();
     uimana_.openSearch();
     uimana_.viewPatternSwitch();
-    uimana_.showFuncSelectSwitch();
-    uimana_.showFuncAreaNameSwitch();
-    uimana_.showPubPointSwitch();
+    //uimana_.showFuncSelectSwitch();
+    //uimana_.showFuncAreaNameSwitch();
+    //uimana_.showPubPointSwitch();
     uimana_.showMoveMapSwitch();
-    uimana_.showXAxisRotateSwitch();
-    uimana_.showYAxisRotateSwitch();
+    //uimana_.createBackgroundSet();
+    //uimana_.showXAxisRotateSwitch();
+    //uimana_.showYAxisRotateSwitch();
 
     /**     * data mana     */
     var architeDataMana_=new ArchiteData(uimana_,architeMain_.architewebgl);
