@@ -31,6 +31,7 @@ function getPositionByLonLat(phi_,theta_,radius_){
     return position_;
 }
 
+
 function Rect(minx,miny,maxx,maxy){
     this.tl = [minx || 0, miny || 0]; //top left point
     this.br = [maxx || 0, maxy || 0]; //bottom right point

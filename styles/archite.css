@@ -43,3 +43,19 @@ html,body{
     box-sizing: content-box;
     z-index: 999;
 }
+
+
+
+
+/*
+.architeScaleContainer{position:absolute;top:1vw;left:1vw;width:3vw;height:6vw;}
+.scaleBtn{width:100%;height:50%;}
+.architeSearchDiv{position:absolute;right:1vw;top:1vw;}
+.architeFloorBtnContainer{position:absolute;right:1vw;top:6vw;width:3vw;}
+.architeFloorBtn{width:100%;height:3vw;}
+.architeFloorList{width:100%;}
+.architeSearchInput{width: 20vw;height:2.6vw;line-height: 2.6vw;}
+.architeSearchBtn{ width:6vw;height:3vw;}
+.checkBoxContainer{position:absolute;top:10vw;left:1vw;}
+.architeSwitchDiv{width:9vw;height:3vw;line-height: 3vw;display:table;}
+.architeSwitchCheckBox{width:2vw;display: table-cell;vertical-align: middle;}*/

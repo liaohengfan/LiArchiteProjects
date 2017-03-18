@@ -300,7 +300,12 @@ class ArchiteWebGL{
              this.defalutCameraPosition.copy(getPositionByLonLat(phi_,theta_,1200));*/
 
 
-            this.defalutCameraPosition.set(386,1367,-1269);
+            if(IsPC()){
+                this.defalutCameraPosition.set(0,1367,-1269);
+            }else{
+                this.defalutCameraPosition.set(0,2348,-2529);
+            }
+
             this.camera.position.copy(this.defalutCameraPosition);
             this.perspectiveControl.update();
 

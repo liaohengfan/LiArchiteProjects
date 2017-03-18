@@ -58,11 +58,25 @@ function getIconUrlByType(type_){
     return "";
 
 }
-
+/**
+ * 判断是不是电脑
+ * @returns {boolean}
+ * @constructor
+ */
+let IsPC=function()
+{
+    var userAgentInfo = navigator.userAgent;
+    var Agents = new Array("Android", "iPhone", "SymbianOS", "Windows Phone", "iPad", "iPod");
+    var flag = true;
+    for (var v = 0; v < Agents.length; v++) {
+        if (userAgentInfo.indexOf(Agents[v]) > 0) { flag = false; break; }
+    }
+    return flag;
+};
 /**     * 信息输出     */
 let msg=function(info_){
-    if(layui&&layui.layer){
-        layui.layer.msg(info_);
+    if(layer){
+        layer.msg(info_);
     }else{
         alert(info_);
     }
