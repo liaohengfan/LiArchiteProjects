@@ -311,8 +311,8 @@ class ArchiteFloor{
                         //color: "#ffffff",
                         //fontsize: 40,
                         fontsize: 40,
-                        //fontface: "Helvetica, MicrosoftYaHei "
-                        fontface: "Microsoft Yahei"
+                        fontface: "Helvetica, MicrosoftYaHei "
+                        //fontface: "Microsoft Yahei"
                 });
 
                 label_.lockX=positionVec3.x;

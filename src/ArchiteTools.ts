@@ -202,7 +202,13 @@ function makeTextSprite( message, parameters )
 
     context.strokeStyle = '#FFFFFF';//边框颜色
     context.fillStyle = '#000000';//填充颜色
-    context.lineWidth = 12;
+    if(IsPC()){
+
+        context.lineWidth = 12;
+    }else{
+
+        context.lineWidth = 6;
+    }
     context.strokeText(message,borderThickness, fontsize + borderThickness);
     context.fillText( message,borderThickness, fontsize + borderThickness);
 

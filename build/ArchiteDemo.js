@@ -53,4 +53,3 @@ function init() {
 window.onload = function () {
     init();
 };
-//# sourceMappingURL=ArchiteDemo.js.map

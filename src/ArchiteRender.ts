@@ -65,7 +65,10 @@ class ArchiteWebGL{
         }else{
             this.renderer=new THREE.CanvasRenderer({antialias: true});
         }*/
+        //this.renderer = new THREE.WebGLRenderer();
         this.renderer = new THREE.WebGLRenderer({antialias: true});
+        this.renderer.setPixelRatio(window.devicePixelRatio);
+        //this.renderer.sortObjects=false;
 
         //y轴视角移动
         this.lookatTween=new TWEEN.Tween(this.lookatVector3);
