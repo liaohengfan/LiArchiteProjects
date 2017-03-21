@@ -54,14 +54,18 @@ class ArchiteWebGL{
     labelScene=null;
     labelCamera=null;
 
+    renderModel:THREE.RenderPass;
+    effectCopy:THREE.ShaderPass;
+    composer:THREE.EffectComposer;
     /**         * 初始化         */
     init(){
         /**     * webgl  / canvas 渲染判断     */
-        if(Detector.webgl){
+        /*if(Detector.webgl){
             this.renderer = new THREE.WebGLRenderer({antialias: true});
         }else{
-            this.renderer=new THREE.CanvasRenderer();
-        }
+            this.renderer=new THREE.CanvasRenderer({antialias: true});
+        }*/
+        this.renderer = new THREE.WebGLRenderer({antialias: true});
 
         //y轴视角移动
         this.lookatTween=new TWEEN.Tween(this.lookatVector3);
@@ -85,7 +89,18 @@ class ArchiteWebGL{
 
         this.renderer.setClearColor(0xf1f2f7);
         this.renderer.setSize(V_WIDTH, V_HEIGHT);
-        this.renderer.autoClear=false;
+        this.renderer.autoClear=false;/*
+
+        this.renderModel = new THREE.RenderPass(this.scene, this.camera);
+// Shader to copy result from renderModel to the canvas
+        this.effectCopy = new THREE.ShaderPass(THREE.CopyShader);
+        this.effectCopy.renderToScreen = true;
+// The composer will compose a result for the actual drawing canvas.
+        this.composer = new THREE.EffectComposer(this.renderer);
+        this.composer.setSize(V_WIDTH * 4, V_HEIGHT * 4);
+// Add passes to the composer.
+        this.composer.addPass(this.renderModel);
+        this.composer.addPass(this.effectCopy);*/
 
         /**         * 绑定渲染         */
         this.domContainer.appendChild(this.renderer.domElement);
@@ -213,6 +228,7 @@ class ArchiteWebGL{
 
         this.renderer.clear();
         if(this.is3D){
+            //this.composer.render();
             this.renderer.render(this.scene,this.camera);
             this.renderer.clearDepth();
             this.renderer.render(this.labelScene,this.labelCamera);
@@ -221,6 +237,14 @@ class ArchiteWebGL{
             this.renderer.clearDepth();
             this.renderer.render(this.labelScene,this.labelCamera);
         }
+    }
+
+    /**     * 重置     */
+    reset(){
+
+        /**         * 重置摄像机焦点         */
+        this.perspectiveControl.target.copy( this.perspectiveControl.target0 );
+        //this.perspectiveControl.reset();
     }
 
     /**         * 3D切换         */

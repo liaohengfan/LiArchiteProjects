@@ -28,6 +28,7 @@ class ArchiteFuncArea{
         this.archite_name=data_.Name;
         var outLine_=getDataMesh(data_,high_,color_);
         this.mesh=outLine_.outline3D;
+        this.outLine=outLine_.outline;
         this.plane=outLine_.outline2D;
     }
     archite_show=true;
@@ -35,6 +36,7 @@ class ArchiteFuncArea{
     archite_id="";
     mesh=null;
     plane=null;
+    outLine=null;
 }
 
 /**     * 楼层     */
@@ -248,6 +250,9 @@ class ArchiteFloor{
                 //创建门店
                 var funcarea_ = new ArchiteFuncArea(funcareas_[i],high_,color_);
                 this.funcAreaMesh.add(funcarea_.mesh);
+
+                funcarea_.outLine.position.z=high_*10;
+                this.funcAreaMesh.add(funcarea_.outLine);
                 this.funcAreaMesh2D.add(funcarea_.plane);
                 this.funcAreas.push(funcarea_);
 
@@ -293,24 +298,29 @@ class ArchiteFloor{
                 var point_ = this.floorData.FuncAreas[i];
                 var position_=point_.Center;
                 var positionVec3=new THREE.Vector3(position_[0]||0,position_[1],y_z);
+                /*
                 var material_=new THREE.SpriteMaterial({
                     map:getLabelTexture(point_.Name||" "),
                     color:0xFFFFFF
                 });
                 material_.map.needsUpdate=true;
                 var label_=new THREE.Sprite(material_);
+                */
+                var label_=makeTextSprite(point_.Name||"",{
+                    color: "#231815",
+                        //color: "#ffffff",
+                        //fontsize: 40,
+                        fontsize: 40,
+                        //fontface: "Helvetica, MicrosoftYaHei "
+                        fontface: "Microsoft Yahei"
+                });
 
                 label_.lockX=positionVec3.x;
                 label_.lockY=positionVec3.y;
                 label_.lockZ=lockZ;
 
-
-                //sprite visible judge
-                label_.width=50;
-                label_.height=25;
-
-                label_.defaultMaterial=material_;
-                label_.scale.set(100,50,1);
+                //label_.defaultMaterial=material_;
+                //label_.scale.set(100,50,1);
                 label_.position.copy(positionVec3);
                 this.funcAreasLabels.add(label_);
             }

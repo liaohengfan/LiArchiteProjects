@@ -302,10 +302,10 @@ class ArchiteUI{
         console.log(item_);
 
         //隐藏其他楼层？
-        var hideOther_=false;
+        var hideOther_=true;
 
         //是3D则不隐藏，不是3D就隐藏
-        this.webgl.is3D?hideOther_=false:hideOther_=true;
+        //this.webgl.is3D?hideOther_=false:hideOther_=true;
 
 
         var selfloor_=this.curArchite.showFloorsMeshByID(item_._id,hideOther_);
@@ -319,6 +319,7 @@ class ArchiteUI{
      */
     private showAllFloors(){
         if(this.webgl){//所有楼层功能需要切换3D显示
+            this.webgl.reset();
             this.webgl.enabled3D(true);
         }
         if(this.curArchite){

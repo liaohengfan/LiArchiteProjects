@@ -151,6 +151,76 @@ function getLabelTexture(str_){
 
 }
 
+function makeTextSprite( message, parameters )
+{
+    if ( parameters === undefined ) parameters = {};
+
+    var fontface = parameters.hasOwnProperty("fontface") ?
+        parameters["fontface"] : "Arial";
+
+    var fontsize = parameters.hasOwnProperty("fontsize") ?
+        parameters["fontsize"] : 18;
+
+    var borderThickness = parameters.hasOwnProperty("borderThickness") ?
+        parameters["borderThickness"] : 2;
+
+    var borderColor = parameters.hasOwnProperty("borderColor") ?
+        parameters["borderColor"] : { r:1, g:1, b:1, a:1.0 };
+
+    var backgroundColor = parameters.hasOwnProperty("backgroundColor") ?
+        parameters["backgroundColor"] : { r:255, g:255, b:255, a:1.0 };
+
+    var fontColor = parameters.hasOwnProperty("color")?
+        parameters["color"] : "#000000";
+
+    //var spriteAlignment = parameters.hasOwnProperty("alignment") ?
+    //	parameters["alignment"] : THREE.SpriteAlignment.topLeft;
+
+    var spriteAlignment = new THREE.Vector2( 0, 0 );
+
+
+    var canvas = document.createElement('canvas');
+    var context = canvas.getContext('2d');
+    //context.font = "Bold " + fontsize + "px " + fontface;
+    context.font = fontsize + "px " + fontface;
+
+    // get size data (height depends only on font size)
+    var metrics = context.measureText( message );
+//
+//        // background color
+//        context.fillStyle   = "rgba(" + backgroundColor.r + "," + backgroundColor.g + ","
+//            + backgroundColor.b + "," + backgroundColor.a + ")";
+//        // border color
+    context.strokeStyle = "rgba(" + borderColor.r + "," + borderColor.g + ","
+        + borderColor.b + "," + borderColor.a + ")";
+//
+//        context.lineWidth = borderThickness;
+//        context.strokeRect(borderThickness/2, borderThickness/2, metrics.width + borderThickness, fontsize * 1.4 + borderThickness);
+
+    // text color
+    context.fillStyle = fontColor;
+
+    context.strokeStyle = '#FFFFFF';//边框颜色
+    context.fillStyle = '#000000';//填充颜色
+    context.lineWidth = 12;
+    context.strokeText(message,borderThickness, fontsize + borderThickness);
+    context.fillText( message,borderThickness, fontsize + borderThickness);
+
+    // canvas contents will be used for a texture
+    var texture = new THREE.Texture(canvas);
+    texture.needsUpdate = true;
+
+
+    var spriteMaterial = new THREE.SpriteMaterial(
+        { map: texture, useScreenCoordinates: false } );
+    var sprite = new THREE.Sprite( spriteMaterial );
+    sprite.defaultMaterial=spriteMaterial;
+    sprite.scale.set(100,50,1.0);
+    sprite.width = metrics.width/2;
+    sprite.height = fontsize*0.8;
+    return sprite;
+}
+
 /**     * 给图片添加外边框     */
 function imageAddBorderTexture(img_){
     var canvas=document.createElement("canvas");
@@ -166,6 +236,7 @@ function imageAddBorderTexture(img_){
 function getDataMesh(data_,high_=1,color_=0xFFFFFF){
     var outline={
         outline3D:new THREE.Object3D(),
+        outline:new THREE.Object3D(),
         outline2D:new THREE.Object3D()
     };
     data_=data_||{};
@@ -207,7 +278,14 @@ function getDataMesh(data_,high_=1,color_=0xFFFFFF){
                 var outLine3DMesh_=new THREE.Mesh(outLine3DGeo_,defaultMaterial3D_);
                 outLine3DMesh_.defaultMaterial=defaultMaterial3D_;
                 outLine3DMesh_.selMaterial=null;
+                outLineShape_.autoClose=true;
+
+                var lineMaterial:THREE.LineBasicMaterial=new THREE.LineBasicMaterial( { color: 0x999999, linewidth: 1 } );
+                var line = new THREE.Line( outLineShape_.createPointsGeometry(10),lineMaterial );
+                line.defaultMaterial=lineMaterial;
+
                 color_+=1;
+                outline.outline.add(line);
                 outline.outline3D.add(outLine3DMesh_);
                 outline.outline2D.add(outLine2DMesh_);
             }
@@ -219,6 +297,7 @@ function getDataMesh(data_,high_=1,color_=0xFFFFFF){
 function getLimitHeightDataMesh(data_,high_=1,color_=0xFFFFFF){
     var outline={
         outline3D:new THREE.Object3D(),
+        outline:new THREE.Object3D(),
         outline2D:new THREE.Object3D()
     };
     data_=data_||{};
@@ -256,7 +335,13 @@ function getLimitHeightDataMesh(data_,high_=1,color_=0xFFFFFF){
                 var outLine3DGeo_=new THREE.ExtrudeGeometry(outLineShape_,buildingExtrudeSettings);
                 var outLine3DMesh_=new THREE.Mesh(outLine3DGeo_,defaultMaterial3D_);
                 outLine3DMesh_.defaultMaterial=defaultMaterial3D_;
+
+                outLineShape_.autoClose=true;
+                var lineMaterial:THREE.LineBasicMaterial=new THREE.LineBasicMaterial( { color: 0x999999, linewidth: 1 } );
+                var line = new THREE.Line( outLineShape_.createPointsGeometry(10),lineMaterial );
+                line.defaultMaterial=lineMaterial;
                 color_+=1;
+                outline.outline.add(line);
                 outline.outline3D.add(outLine3DMesh_);
                 outline.outline2D.add(outLine2DMesh_);
             }
@@ -283,6 +368,13 @@ function meshChangeOpacity(object3D_,alpha_){
         }
 
         if(mesh_&&mesh_.type=="Sprite"){
+            if(mesh_.defaultMaterial) {
+                mesh_.defaultMaterial.transparent = transparent_;
+                mesh_.defaultMaterial.opacity = alpha_;
+            }
+        }
+
+        if(mesh_&&mesh_.type=="Line"){
             if(mesh_.defaultMaterial) {
                 mesh_.defaultMaterial.transparent = transparent_;
                 mesh_.defaultMaterial.opacity = alpha_;
