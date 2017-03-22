@@ -32,6 +32,7 @@ class ArchiteData{
     /**         * 获取指定数据         */
     getMapsbyAjax(url_,requestData_){
         var that_=this;
+        layer.load();
         $.ajax({
             type: "GET",
             url: url_,
@@ -39,6 +40,7 @@ class ArchiteData{
             data:requestData_,
             success: function (data_) {
                 that_.parseMapsData(data_);
+                layer.closeAll("loading");
             }
         });
     }

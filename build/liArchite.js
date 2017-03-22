@@ -382,6 +382,7 @@ var ArchiteData = (function () {
     /**         * 获取指定数据         */
     ArchiteData.prototype.getMapsbyAjax = function (url_, requestData_) {
         var that_ = this;
+        layer.load();
         $.ajax({
             type: "GET",
             url: url_,
@@ -389,6 +390,7 @@ var ArchiteData = (function () {
             data: requestData_,
             success: function (data_) {
                 that_.parseMapsData(data_);
+                layer.closeAll("loading");
             }
         });
     };
@@ -409,7 +411,7 @@ var ArchiteData = (function () {
     };
     return ArchiteData;
 }());
-//# sourceMappingURL=ArchiteData.js.map
+
 /**
  * Created by liaohengfan on 2017/3/7.
  */
@@ -767,7 +769,8 @@ var msg = function (info_) {
     }
 };
 var ArchiteMain = (function () {
-    function ArchiteMain(container_, control_) {
+    function ArchiteMain(container_, control_, uicontainer) {
+        if (uicontainer === void 0) { uicontainer = null; }
         /**     * detector     */
         if (!Detector.webgl) {
             msg("该浏览器不支持webgl / Canvas, 请更换浏览器后尝试！");
@@ -1228,6 +1231,84 @@ var ArchiteWebGL = (function () {
 }());
 
 /**
+ * Created by Administrator on 2017/3/22.
+ * 搜索模块
+ */
+var ArchiteSearch = (function () {
+    function ArchiteSearch(parentDom_) {
+        this.domContainer = null;
+        this.curData = null;
+        this.parentDomContainer = parentDom_;
+        this.initUI();
+    }
+    /**     * 初始化UI     */
+    ArchiteSearch.prototype.initUI = function () {
+        this.domContainer = d3.select(this.parentDomContainer).append("div")
+            .attr("class", "architeSearchContainer");
+        //.style("display","none");
+        //创建搜索框
+        this.createSearchDom();
+        //创建公共服务点选项
+        this.createPubPoint();
+        //创建搜索结果选项
+        this.createSearchItemList();
+    };
+    /**     * 创建搜索结果选项     */
+    ArchiteSearch.prototype.createSearchItemList = function () {
+    };
+    /**     * 创建公共服务点选项     */
+    ArchiteSearch.prototype.createPubPoint = function () {
+        //<label for="exampleInputEmail1">Email address</label>
+        var label_ = this.domContainer.append("label")
+            .text("公共服务点");
+        var pubContainer_ = this.domContainer.append("div")
+            .attr("class", "form-group row");
+        var items_ = pubContainer_.selectAll("div")
+            .data(ICON_TYPE_CHECK)
+            .enter()
+            .append("div")
+            .attr("class", "col-xs-1")
+            .style({
+            "width": "100px",
+            "padding": "0"
+        });
+        //添加图标
+        items_.append("img")
+            .attr("src", function (item_) {
+            return ICON_ASSET_BASE + item_.ico;
+        })
+            .attr("class", "col-xs-12")
+            .style("text-align", "center");
+        //添加名字
+        items_.append("span")
+            .text(function (item_) {
+            return item_.name;
+        })
+            .attr("class", "col-xs-12")
+            .style("text-align", "center");
+    };
+    /**     * 创建搜索框     */
+    ArchiteSearch.prototype.createSearchDom = function () {
+        var searchContainer_ = this.domContainer.append("div").attr("class", "input-group");
+        var searchInput_ = searchContainer_.append("input")
+            .attr({
+            "class": "form-control",
+            "placeholder": "搜索"
+        });
+        var searchIcon_ = searchContainer_.append("div")
+            .attr({
+            "class": "input-group-addon"
+        });
+        searchIcon_.append("div")
+            .attr("class", "glyphicon glyphicon-search");
+    };
+    ArchiteSearch.prototype.bindData = function (data_) {
+        this.curData = data_;
+    };
+    return ArchiteSearch;
+}());
+
+/**
  * Created by liaohengfan on 2017/3/7.
  */
 /**
@@ -1564,31 +1645,33 @@ var ArchiteUI = (function () {
         this.domContainer = dom_;
         this.domID = d3.select(dom_).attr("id");
         this.domClass = d3.select(dom_).attr("class");
+        this.appendUIStyle(".architeSearchContainer{position:absolute;top:0;left:0;z-index:100;}");
         if (IsPC()) {
-            this.appendUIStyle(".architeScaleContainer{position:absolute;top:1vw;left:1vw;width:2vw;height:4vw;}");
-            this.appendUIStyle(".scaleBtn{width:100%;height:50%;}");
+            this.appendUIStyle(".architeScaleContainer{position:absolute;top:1vw;left:1vw;width:3vw;}");
+            this.appendUIStyle(".scaleBtn{width:100%;height:3vw;padding:0;margin:0;}");
             this.appendUIStyle(".architeSearchDiv{position:absolute;right:1vw;top:1vw;}");
-            this.appendUIStyle(".architeFloorBtnContainer{position:absolute;right:1vw;top:6vw;width:2vw;}");
-            this.appendUIStyle(".architeFloorBtn{width:100%;height:2vw;}");
+            this.appendUIStyle(".architeFloorBtnContainer{position:absolute;right:2vw;top:6vw;width:3vw;}");
+            this.appendUIStyle(".architeFloorBtn{width:100%;height:3vw;padding:0;margin:0;}");
             this.appendUIStyle(".architeFloorList{width:100%;}");
             this.appendUIStyle(".architeSearchInput{width: 20vw;height:1.8vw;line-height: 1.8vw;}");
             this.appendUIStyle(".architeSearchBtn{ width:3vw;height:2vw;}");
-            this.appendUIStyle(".checkBoxContainer{position:absolute;top:6vw;left:1vw;}");
+            this.appendUIStyle(".checkBoxContainer{position:absolute;top:8vw;left:1vw;}");
             this.appendUIStyle(".architeSwitchDiv{width:9vw;height:2vw;line-height: 2vw;display:table;}");
             this.appendUIStyle(".architeSwitchCheckBox{width:2vw;display: table-cell;vertical-align: middle;}");
             this.appendUIStyle(".architeBackgroundColorChange {width: 7vw;height: 2vw;padding-right: 2vw;}");
             this.appendUIStyle(".webgl_backgroundColor{float:right;width:1vw;background:#f1f2f7;height:1vw;margin-right: 1.8vw;border:1px solid #000;");
         }
         else {
-            this.appendUIStyle(".architeScaleContainer{position:absolute;top:1vw;left:1vw;width:8vw;height:12vw;}");
-            this.appendUIStyle(".scaleBtn{width:100%;height:50%;}");
+            this.appendUIStyle(".architeScaleContainer{position:absolute;top:12vw;left:1vw;width:10vw;height:12vw;}");
+            this.appendUIStyle(".scaleBtn{width:100%;height:9vw;padding:0;margin:0;}");
             this.appendUIStyle(".architeSearchDiv{position:absolute;right:1vw;top:1vw;}");
-            this.appendUIStyle(".architeFloorBtnContainer{position:absolute;right:1vw;top:16vw;width:8vw;}");
-            this.appendUIStyle(".architeFloorBtn{width:100%;height:6vw;}");
+            this.appendUIStyle(".architeFloorBtnContainer{position:absolute;right:5vw;top:16vw;width:11vw;}");
+            //this.appendUIStyle(".architeFloorBtn{padding:0;margin:0;}");
+            //this.appendUIStyle(".architeFloorBtn{width:100%;height:6vw;padding:0;margin:0;}");
             this.appendUIStyle(".architeFloorList{width:100%;}");
             this.appendUIStyle(".architeSearchInput{width: 24vw;height:4.6vw;line-height: 4.6vw;}");
             this.appendUIStyle(".architeSearchBtn{ width:12vw;height:6vw;}");
-            this.appendUIStyle(".checkBoxContainer{position:absolute;top:18vw;left:1vw;}");
+            this.appendUIStyle(".checkBoxContainer{position:absolute;top:32vw;left:1vw;}");
             this.appendUIStyle(".architeSwitchDiv{width:25vw;height:7vw;line-height: 7vw;display:table;}");
             this.appendUIStyle(".architeSwitchCheckBox{width:4vw;display: table-cell;vertical-align: middle;}");
             this.appendUIStyle(".architeBackgroundColorChange {width: 25vw;height: 7vw;}");
@@ -1637,7 +1720,8 @@ var ArchiteUI = (function () {
         class_ == "" ? class_ = null : class_ = class_;
         class_ = (class_ || "architeBtn");
         var btn_ = container_.append("button");
-        btn_.attr("class", class_);
+        //btn_.attr("class",class_);
+        btn_.attr("class", "btn btn-default " + class_);
         btn_.text(name_);
         btn_.on("click", function (e_) {
             callBack_();
@@ -1654,26 +1738,25 @@ var ArchiteUI = (function () {
             console.log("搜索已经创建功能已经创建");
             return;
         }
+        /**         * 创建搜索页面         */
+        this.search = new ArchiteSearch(this.domContainer);
         this.createSearch = true;
         var that_ = this;
         var search_ = d3.select(this.domContainer).append("div")
             .attr("class", "architeSearchDiv");
-        var input_ = search_.append("input")
-            .attr("class", "architeSearchInput");
-        var searchBtn_ = that_.createBtn(search_, "搜索", "architeSearchBtn", function () {
-            var searchName_ = input_[0][0].value;
-            if (!searchName_) {
-                msg("搜索内容为空！！");
-                return;
-            }
-            if (searchName_ == "") {
-                msg("搜索内容为空！！");
-                return;
-            }
-            if (that_.webgl) {
-                that_.webgl.searchFuncArea(searchName_);
-            }
+        var div1_ = search_.append("div").attr("class", "form-inline")
+            .append("div").attr("class", "input-group");
+        var input_ = div1_.append("input")
+            .attr({
+            "class": "form-control",
+            "placeholder": "搜索"
         });
+        var icon_ = div1_.append("div")
+            .attr({
+            "class": "input-group-addon"
+        });
+        icon_.append("div")
+            .attr("class", "glyphicon glyphicon-search");
     };
     /**
      * 创建复选框
@@ -1787,11 +1870,11 @@ var ArchiteUI = (function () {
         }
         var floorsData_ = archite_.oriData.Floors || [];
         that_.floorDom = d3.select(that_.domContainer).append("div");
-        that_.floorDom.attr("class", "architeFloorBtnContainer");
+        that_.floorDom.attr("class", "architeFloorBtnContainer row");
         var _floorDom = that_.floorDom;
         //所有楼层
         var allBtn_ = _floorDom.append("button")
-            .attr("class", "architeFloorBtn")
+            .attr("class", "btn btn-default architeFloorBtn col-xs-12")
             .text("All");
         allBtn_.on("click", function (e_) {
             that_.showAllFloors();
@@ -1803,7 +1886,7 @@ var ArchiteUI = (function () {
             .data(floorsData_)
             .enter()
             .append("button")
-            .attr("class", "architeFloorBtn")
+            .attr("class", "btn btn-default architeFloorBtn  col-xs-12")
             .text(function (item_) {
             return item_.Name || "--";
         })
@@ -1873,4 +1956,3 @@ var ArchiteUI = (function () {
     };
     return ArchiteUI;
 }());
-//# sourceMappingURL=ArchiteUI.js.map

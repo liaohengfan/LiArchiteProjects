@@ -84,7 +84,7 @@ let msg=function(info_){
 class ArchiteMain{
 
     architewebgl:ArchiteWebGL;
-    constructor(container_,control_){
+    constructor(container_,control_,uicontainer=null){
         /**     * detector     */
         if(!Detector.webgl){
             msg("该浏览器不支持webgl / Canvas, 请更换浏览器后尝试！");
