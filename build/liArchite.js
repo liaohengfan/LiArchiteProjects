@@ -409,7 +409,7 @@ var ArchiteData = (function () {
     };
     return ArchiteData;
 }());
-
+//# sourceMappingURL=ArchiteData.js.map
 /**
  * Created by liaohengfan on 2017/3/7.
  */
@@ -673,10 +673,9 @@ var ArchiteFloor = (function () {
                 */
                 var label_ = makeTextSprite(point_.Name || "", {
                     color: "#231815",
-                    //color: "#ffffff",
-                    //fontsize: 40,
                     fontsize: 40,
-                    fontface: "Helvetica, MicrosoftYaHei "
+                    //fontface: "Helvetica, MicrosoftYaHei "
+                    fontface: "Microsoft Yahei"
                 });
                 label_.lockX = positionVec3.x;
                 label_.lockY = positionVec3.y;
@@ -1339,63 +1338,26 @@ function parseVec2Points(pointArray) {
     }
     return shapePoints;
 }
-/**     *  text 2 canvas Texture     */
-function getLabelTexture(str_) {
-    //var canvas=document.getElementById('canvasTexture');
-    //var texture_=new THREE.Texture(canvas);
-    var canvas = document.createElement("canvas");
-    var ctx_ = canvas.getContext('2d');
-    /*ctx_.fillStyle='rgba(0,0,0,0)';
-     ctx_.fillRect(0,0,100,50);*/
-    ctx_.strokeStyle = '#FFFFFF'; //边框颜色
-    ctx_.fillStyle = '#000000'; //填充颜色
-    ctx_.lineWidth = 4;
-    ctx_.font = "32px Microsoft Yahei";
-    //ctx_.strokeText(str_,10,40);
-    ctx_.fillText(str_, 10, 40);
-    var texture_ = new THREE.Texture(canvas);
-    return texture_;
-}
 function makeTextSprite(message, parameters) {
     if (parameters === undefined)
         parameters = {};
-    var fontface = parameters.hasOwnProperty("fontface") ?
-        parameters["fontface"] : "Arial";
-    var fontsize = parameters.hasOwnProperty("fontsize") ?
-        parameters["fontsize"] : 18;
-    var borderThickness = parameters.hasOwnProperty("borderThickness") ?
-        parameters["borderThickness"] : 2;
-    var borderColor = parameters.hasOwnProperty("borderColor") ?
-        parameters["borderColor"] : { r: 1, g: 1, b: 1, a: 1.0 };
+    var fontface = parameters.hasOwnProperty("fontface") ? parameters["fontface"] : "Arial";
+    var fontsize = parameters.hasOwnProperty("fontsize") ? parameters["fontsize"] : 18;
+    var borderThickness = parameters.hasOwnProperty("borderThickness") ? parameters["borderThickness"] : 2;
+    var borderColor = parameters.hasOwnProperty("borderColor") ? parameters["borderColor"] : { r: 1, g: 1, b: 1, a: 1.0 };
     var backgroundColor = parameters.hasOwnProperty("backgroundColor") ?
         parameters["backgroundColor"] : { r: 255, g: 255, b: 255, a: 1.0 };
-    var fontColor = parameters.hasOwnProperty("color") ?
-        parameters["color"] : "#000000";
-    //var spriteAlignment = parameters.hasOwnProperty("alignment") ?
-    //	parameters["alignment"] : THREE.SpriteAlignment.topLeft;
-    var spriteAlignment = new THREE.Vector2(0, 0);
+    var fontColor = parameters.hasOwnProperty("color") ? parameters["color"] : "#000000";
     var canvas = document.createElement('canvas');
     var context = canvas.getContext('2d');
-    //context.font = "Bold " + fontsize + "px " + fontface;
     context.font = fontsize + "px " + fontface;
-    // get size data (height depends only on font size)
     var metrics = context.measureText(message);
-    //
-    //        // background color
-    //        context.fillStyle   = "rgba(" + backgroundColor.r + "," + backgroundColor.g + ","
-    //            + backgroundColor.b + "," + backgroundColor.a + ")";
-    //        // border color
-    context.strokeStyle = "rgba(" + borderColor.r + "," + borderColor.g + ","
-        + borderColor.b + "," + borderColor.a + ")";
-    //
-    //        context.lineWidth = borderThickness;
-    //        context.strokeRect(borderThickness/2, borderThickness/2, metrics.width + borderThickness, fontsize * 1.4 + borderThickness);
-    // text color
-    context.fillStyle = fontColor;
     context.strokeStyle = '#FFFFFF'; //边框颜色
     context.fillStyle = '#000000'; //填充颜色
+    context.lineCap = "round";
+    context.lineJoin = "round";
     if (IsPC()) {
-        context.lineWidth = 12;
+        context.lineWidth = 10;
     }
     else {
         context.lineWidth = 6;
@@ -1412,15 +1374,6 @@ function makeTextSprite(message, parameters) {
     sprite.width = metrics.width / 2;
     sprite.height = fontsize * 0.8;
     return sprite;
-}
-/**     * 给图片添加外边框     */
-function imageAddBorderTexture(img_) {
-    var canvas = document.createElement("canvas");
-    document.body.appendChild(canvas);
-    var ctx_ = canvas.getContext('2d');
-    ctx_.drawImage(img_, 0, 0);
-    var texture_ = new THREE.Texture(canvas);
-    return texture_;
 }
 /**     * 解析所有轮廓     */
 function getDataMesh(data_, high_, color_) {
@@ -1920,3 +1873,4 @@ var ArchiteUI = (function () {
     };
     return ArchiteUI;
 }());
+//# sourceMappingURL=ArchiteUI.js.map

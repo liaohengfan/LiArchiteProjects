@@ -307,12 +307,11 @@ class ArchiteFloor{
                 var label_=new THREE.Sprite(material_);
                 */
                 var label_=makeTextSprite(point_.Name||"",{
-                    color: "#231815",
-                        //color: "#ffffff",
-                        //fontsize: 40,
+                        color: "#231815",
                         fontsize: 40,
-                        fontface: "Helvetica, MicrosoftYaHei "
-                        //fontface: "Microsoft Yahei"
+                        //fontface: "Helvetica, MicrosoftYaHei "
+                        fontface: "Microsoft Yahei"
+                        //fontface: "Roboto"
                 });
 
                 label_.lockX=positionVec3.x;
