@@ -47,7 +47,7 @@ class ArchiteSearch{
             .append("div")
             .attr("class","col-xs-1")
             .style({
-                "width":"100px",
+                "width":"80px",
                 "padding":"0"
             });
 
