@@ -135,7 +135,7 @@ class ArchiteUI{
         }
 
         /**         * 创建搜索页面         */
-        this.search=new ArchiteSearch(this.domContainer);
+        //this.search=new ArchiteSearch(this.domContainer);
 
         this.createSearch=true;
         var that_=this;
