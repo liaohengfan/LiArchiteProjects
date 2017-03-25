@@ -248,6 +248,7 @@ class ArchiteWebGL{
 
         /**         * 重置摄像机焦点         */
         this.perspectiveControl.target.copy( this.perspectiveControl.target0 );
+        this.hisCameraPosition.copy(this.defalutCameraPosition);
         //this.perspectiveControl.reset();
     }
 
