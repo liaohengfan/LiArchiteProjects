@@ -25,24 +25,25 @@ class ArchiteUI{
 
         this.domID=d3.select(dom_).attr("id");
         this.domClass=d3.select(dom_).attr("class");
-        this.appendUIStyle(".architeSearchContainer{position:absolute;top:0;left:0;z-index:100;}");
+        this.appendUIStyle(".architeSearchContainer{position:absolute;top:0;left:0;z-index:100;padding:0;margin:0;background:#FFF;}");
+        this.appendUIStyle(".SearchPubPointItem{width:100px;margin:5px;float:left;}");
         if(IsPC()){
-            this.appendUIStyle(".architeScaleContainer{position:absolute;top:1vw;left:1vw;width:3vw;}");
-            this.appendUIStyle(".scaleBtn{width:100%;height:3vw;padding:0;margin:0;}");
+            this.appendUIStyle(".architeScaleContainer{position:absolute;top:1vw;left:1vw;width:36px;}");
+            this.appendUIStyle(".scaleBtn{width:100%;height:36px;padding:0;margin:0;}");
             this.appendUIStyle(".architeSearchDiv{position:absolute;right:1vw;top:1vw;}");
-            this.appendUIStyle(".architeFloorBtnContainer{position:absolute;right:2vw;top:6vw;width:3vw;}");
-            this.appendUIStyle(".architeFloorBtn{width:100%;height:3vw;padding:0;margin:0;}");
+            this.appendUIStyle(".architeFloorBtnContainer{position:absolute;right:2vw;top:70px;width:36px;}");
+            this.appendUIStyle(".architeFloorBtn{width:100%;height:36px;padding:0;margin:0;}");
             this.appendUIStyle(".architeFloorList{width:100%;}");
             this.appendUIStyle(".architeSearchInput{width: 20vw;height:1.8vw;line-height: 1.8vw;}");
             this.appendUIStyle(".architeSearchBtn{ width:3vw;height:2vw;}");
-            this.appendUIStyle(".checkBoxContainer{position:absolute;top:8vw;left:1vw;}");
+            this.appendUIStyle(".checkBoxContainer{position:absolute;top:100px;left:1vw;}");
             this.appendUIStyle(".architeSwitchDiv{width:9vw;height:2vw;line-height: 2vw;display:table;}");
             this.appendUIStyle(".architeSwitchCheckBox{width:2vw;display: table-cell;vertical-align: middle;}");
             this.appendUIStyle(".architeBackgroundColorChange {width: 7vw;height: 2vw;padding-right: 2vw;}");
             this.appendUIStyle(".webgl_backgroundColor{float:right;width:1vw;background:#f1f2f7;height:1vw;margin-right: 1.8vw;border:1px solid #000;");
         }else{
-            this.appendUIStyle(".architeScaleContainer{position:absolute;top:12vw;left:1vw;width:10vw;height:12vw;}");
-            this.appendUIStyle(".scaleBtn{width:100%;height:9vw;padding:0;margin:0;}");
+            this.appendUIStyle(".architeScaleContainer{position:absolute;top:10px;left:10px;width:30px;}");
+            this.appendUIStyle(".scaleBtn{width:100%;height:30px;padding:0;margin:0;}");
             this.appendUIStyle(".architeSearchDiv{position:absolute;right:1vw;top:1vw;}");
             this.appendUIStyle(".architeFloorBtnContainer{position:absolute;right:5vw;top:16vw;width:11vw;}");
             //this.appendUIStyle(".architeFloorBtn{padding:0;margin:0;}");
@@ -50,7 +51,7 @@ class ArchiteUI{
             this.appendUIStyle(".architeFloorList{width:100%;}");
             this.appendUIStyle(".architeSearchInput{width: 24vw;height:4.6vw;line-height: 4.6vw;}");
             this.appendUIStyle(".architeSearchBtn{ width:12vw;height:6vw;}");
-            this.appendUIStyle(".checkBoxContainer{position:absolute;top:32vw;left:1vw;}");
+            this.appendUIStyle(".checkBoxContainer{position:absolute;top:80px;left:10px;}");
             this.appendUIStyle(".architeSwitchDiv{width:25vw;height:7vw;line-height: 7vw;display:table;}");
             this.appendUIStyle(".architeSwitchCheckBox{width:4vw;display: table-cell;vertical-align: middle;}");
             this.appendUIStyle(".architeBackgroundColorChange {width: 25vw;height: 7vw;}");
@@ -77,9 +78,9 @@ class ArchiteUI{
             this.uiStyles=d3.select("head").append("style");
         }
         if(this.domID){
-            styles_+=(this.domID+" "+styles_);
+            styles_=("#"+this.domID+" "+styles_);
         }else if(this.domClass){
-            styles_+=(this.domClass+" "+styles_);
+            styles_=("."+this.domClass+" "+styles_);
         }else{
             styles_;
         }
@@ -125,27 +126,32 @@ class ArchiteUI{
     updataUIByArchiteBase(archite_:ArchiteBase){
         this.curArchite=archite_;
         this.createFloorsBtn(archite_);
+        if(this.search){
+            this.search.bindArchite(archite_);
+        }
     }
 
     createSearch:boolean=false;
     public openSearch(){
-        if(this.createSearch){
+        if(this.createSearch) {
             console.log("搜索已经创建功能已经创建");
             return;
         }
 
         /**         * 创建搜索页面         */
-        //this.search=new ArchiteSearch(this.domContainer);
+        this.search=new ArchiteSearch(this.domContainer,this);
 
         this.createSearch=true;
         var that_=this;
         var search_=d3.select(this.domContainer).append("div")
             .attr("class","architeSearchDiv");
         var div1_=search_.append("div").attr("class","form-inline")
-            .append("div").attr("class","input-group");
+            .append("div").attr("class","input-group")
+            .style("width","95px");
         var input_=div1_.append("input")
             .attr({
                 "class":"form-control",
+                "readonly":"",
                 "placeholder":"搜索"
             });
         var icon_=div1_.append("div")
@@ -154,6 +160,11 @@ class ArchiteUI{
             });
         icon_.append("div")
             .attr("class","glyphicon glyphicon-search");
+        search_.on("click",()=>{
+            if(this.search){
+                this.search.showSearch();
+            }
+        });
     }
     /**
      * 创建复选框

@@ -26,11 +26,13 @@ class ArchiteFuncArea{
     constructor(data_,high_,color_){
         this.archite_id=data_._id;
         this.archite_name=data_.Name;
+        this.oriData=data_;
         var outLine_=getDataMesh(data_,high_,color_);
         this.mesh=outLine_.outline3D;
         this.outLine=outLine_.outline;
         this.plane=outLine_.outline2D;
     }
+    oriData:any=null;
     archite_show=true;
     archite_name="";
     archite_id="";
@@ -131,6 +133,7 @@ class ArchiteFloor{
      * @type {any}
      */
     PubPoints=null;
+    PubPointArrays:Array<any>=[];
     /**         * 公共服务点         */
     getPubPoints(enabled_){
 
@@ -178,6 +181,11 @@ class ArchiteFloor{
 
                 sprite_.position.copy(positionVec3);
                 this.PubPoints.add(sprite_);
+
+                //原始数据
+                sprite_.oriData=point_;
+
+                this.PubPointArrays.push(sprite_);
 
 
             }

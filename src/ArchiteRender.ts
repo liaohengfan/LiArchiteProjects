@@ -464,6 +464,55 @@ class ArchiteWebGL{
         });
     }
 
+    /**     * 标记地址     */
+    markPoint(objData_:any){
+
+        var floorID:any=objData_.FloorID;
+
+        if(this.curArchite) {
+            //获取/创建楼层
+            var floor_ = this.curArchite.showFloorsMeshByID(floorID,true);
+            if (!floor_) {
+                return null;
+            }
+            this.lookatYTweento(floor_.yAxis);//聚焦
+
+            /**         * 搜索店铺         */
+            var funcAreas_:any=_.filter(floor_.funcAreas,function(item_){
+                return item_.oriData===objData_;
+            });
+            var funcArea_=(funcAreas_[0]||null);
+            if(funcArea_){//找到店铺
+                if(this.is3D){
+                    this.selMeshHandler({
+                        object:funcArea_.mesh.children[0]
+                    });
+                }else{
+                    this.selMeshHandler({
+                        object:funcArea_.plane.children[0]
+                    });
+                }
+                return;
+            }
+
+            /**             * 搜索公共点             */
+            var pubPoints_:any=_.filter(floor_.PubPointArrays,function(item_){
+                return item_.oriData===objData_;
+            });
+            var pubPoint_=(pubPoints_[0]||null);
+            if(pubPoint_){//找到服务点
+                console.log(pubPoint_);
+            }else{
+                msg("未找到模型/标注点");
+            }
+
+
+
+        }
+
+
+    }
+
     /**         * 店铺查询         */
     searchFuncArea(name_){
         if(this.curArchite){
