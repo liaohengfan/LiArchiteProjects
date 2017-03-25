@@ -36,6 +36,7 @@ class ArchiteWebGL{
     curArchite:ArchiteBase=null;
 
     defalutCameraPosition=new THREE.Vector3(0,0,0);
+    hisCameraPosition=new THREE.Vector3(0,0,0);
     curCameraPosition=new THREE.Vector3(0,0,0);
     defalutCameraTween=null;
 
@@ -271,9 +272,9 @@ class ArchiteWebGL{
             that_.perspectiveControl.maxPolarAngle=that_.maxPolarAngleInit;
             that_.defalutCameraTween.stop();
             that_.defalutCameraTween.to({
-                x:that_.defalutCameraPosition.x,
-                y:that_.defalutCameraPosition.y,
-                z:that_.defalutCameraPosition.z
+                x:that_.hisCameraPosition.x,
+                y:that_.hisCameraPosition.y,
+                z:that_.hisCameraPosition.z
             },500).onUpdate(function(){
                 that_.camera.position.copy(this);
                 that_.perspectiveControl.update();
@@ -281,7 +282,7 @@ class ArchiteWebGL{
             that_.defalutCameraTween.start();
         }else{
 
-            that_.defalutCameraPosition.copy(this.camera.position);
+            that_.hisCameraPosition.copy(this.camera.position);
 
             that_.perspectiveTween.stop();
             that_.perspectiveControlSet.maxPolarAngle=Math.PI/2;
@@ -332,6 +333,7 @@ class ArchiteWebGL{
             }else{
                 this.defalutCameraPosition.set(0,2348,-2529);
             }
+            this.hisCameraPosition.copy(this.defalutCameraPosition);
 
             this.camera.position.copy(this.defalutCameraPosition);
             this.perspectiveControl.update();
@@ -462,6 +464,19 @@ class ArchiteWebGL{
                 //msg("no Sel");
             }
         });
+    }
+
+    /**     * 摄像头聚焦     */
+    cameraLoocPoint(vec3_:THREE.Vector3){
+
+        //lookat
+        this.perspectiveControl.target.copy( vec3_);
+
+        //摄像头新地址
+        var newPoint_:THREE.Vector3=new THREE.Vector3();
+        newPoint_.subVectors(this.defalutCameraPosition,vec3_);
+
+
     }
 
     /**     * 标记地址     */
