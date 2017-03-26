@@ -44,7 +44,8 @@ class ArchiteFuncArea{
 /**     * 楼层     */
 class ArchiteFloor{
 
-    constructor(data_,y_){
+    constructor(resources_:ArchiteResources,data_,y_){
+        this.resources=resources_;
         this.floorData=data_;
         this.archite_id=data_._id;
         this.archite_name=data_.Name;
@@ -117,7 +118,7 @@ class ArchiteFloor{
 
     }
     showStuts=1;
-
+    resources:ArchiteResources;
     archite_show=true;
     archite_name="";
     archite_id="";
@@ -160,10 +161,15 @@ class ArchiteFloor{
                 var position_=point_.Outline[0][0];
                 var positionVec3=new THREE.Vector3(position_[0]||0,position_[1],y_z);
                 var ico_=getIconUrlByType(point_.Type);
+                var map_:THREE.Texture=this.resources.getTexture(point_.Type);
+                if(!map_){
+                    map_=new THREE.Texture();
+                }
 
                 //图标待确认
                 var material_=new THREE.SpriteMaterial({
-                    map:new THREE.TextureLoader().load(ico_),
+                    //map:new THREE.TextureLoader().load(ico_),
+                    map:map_,
                     color:0xFFFFFF
                 });
                 var sprite_=new THREE.Sprite(material_);

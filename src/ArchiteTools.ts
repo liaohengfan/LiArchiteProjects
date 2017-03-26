@@ -53,7 +53,8 @@ function updateBillBoards(billboards_,proMatrix_){
         var sprite = billboards_.children[i];
         //var vec = new THREE.Vector3(sprite.lockX, 0, -sprite.lockY);
         var vec = new THREE.Vector3(sprite.lockX, sprite.lockZ, -sprite.lockY);
-        vec.applyProjection(proMatrix_);
+        vec.applyMatrix4(proMatrix_);
+        //vec.applyProjection(proMatrix_);
 
         var x = Math.round(vec.x * V_WHalf);
         var y = Math.round(vec.y * V_HHalf);
@@ -62,6 +63,10 @@ function updateBillBoards(billboards_,proMatrix_){
         sprite.position.set(x, y, z);
 
         //check collision with the former sprites
+        if(sprite.alwaysShow){
+            sprite.visible=true;
+            continue;
+        }
         var visible = true;
         var visibleMargin = 5;
         for(var j = 0; j < i; j++){

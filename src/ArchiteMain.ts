@@ -83,6 +83,7 @@ let msg=function(info_){
 };
 class ArchiteMain{
 
+    architeResources:ArchiteResources;
     architewebgl:ArchiteWebGL;
     constructor(container_,control_,uicontainer=null){
         /**     * detector     */
@@ -90,8 +91,14 @@ class ArchiteMain{
             msg("该浏览器不支持webgl / Canvas, 请更换浏览器后尝试！");
             throw new Error("该浏览器不支持webgl / Canvas, 请更换浏览器后尝试！");
         }
-
-        this.architewebgl=new ArchiteWebGL(container_,control_);
+        this.architeResources=new ArchiteResources();
+        for (var i = 0; i < ICON_TYPE_CHECK.length; i++) {
+            var icon_ = ICON_TYPE_CHECK[i];
+            var url_=ICON_ASSET_BASE+icon_.ico;
+            this.architeResources.addTexture(icon_.type,url_);
+        }
+        this.architeResources.addTexture("MARKPOINT",ICON_ASSET_BASE+"markPoint.png");//标记点
+        this.architewebgl=new ArchiteWebGL(container_,control_,this.architeResources);
 
 
     }

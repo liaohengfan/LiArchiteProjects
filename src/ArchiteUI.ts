@@ -329,6 +329,7 @@ class ArchiteUI{
 
         var selfloor_=this.curArchite.showFloorsMeshByID(item_._id,hideOther_);
         if(this.webgl){
+            this.webgl.removeAllMarkPoint();
             this.webgl.lookatYTweento(selfloor_.yAxis);
         }
     }
@@ -339,6 +340,7 @@ class ArchiteUI{
     private showAllFloors(){
         if(this.webgl){//所有楼层功能需要切换3D显示
             this.webgl.reset();
+            this.webgl.removeAllMarkPoint();
             this.webgl.enabled3D(true);
         }
         if(this.curArchite){

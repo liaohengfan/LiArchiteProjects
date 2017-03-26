@@ -32,13 +32,12 @@
 
 /**     * 建筑基类     */
 class ArchiteBase{
-    constructor(data_:any,is3D_){
+    constructor(data_:any,is3D_,resources_:ArchiteResources){
         this.oriData=data_;
+        this.resources=resources_;
         this.ArchiteName=this.oriData.building.Name;
         this.ArchiteOutLine=this.oriData.building.Outline;
         this.ArchiteID=this.oriData.building._id;
-
-
         this.archite_id=data_._id;
         this.archite_name=data_.Name;
 
@@ -73,6 +72,7 @@ class ArchiteBase{
         //this.parseBuildingOutLine();
     }
 
+    resources:ArchiteResources;
     archite_show=true;
     archite_name="";
     archite_id="";
@@ -405,7 +405,7 @@ class ArchiteBase{
         var y_=this.getFloorY(floor_);
 
         //创建楼层
-        var curFloor_=new ArchiteFloor(floorData_,y_*80);
+        var curFloor_=new ArchiteFloor(this.resources,floorData_,y_*80);
 
         return curFloor_;
     }

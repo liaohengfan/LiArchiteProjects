@@ -39,7 +39,7 @@ function init(){
     //uimana_.showYAxisRotateSwitch();
 
     /**     * data mana     */
-    var architeDataMana_=new ArchiteData(uimana_,architeMain_.architewebgl);
+    var architeDataMana_=new ArchiteData(uimana_,architeMain_.architewebgl,architeMain_.architeResources);
     //architeDataMana_.getMapsbyAjax("ajaxData/aiqing.json",{});
     architeDataMana_.getMapsbyAjax("ajaxData/fangcaodi.json",{});
 

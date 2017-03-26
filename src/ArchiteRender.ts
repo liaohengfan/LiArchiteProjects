@@ -22,12 +22,13 @@
 
 /**     * WebGL     */
 class ArchiteWebGL{
-    constructor(dom_,controlDom_){
+    constructor(dom_,controlDom_,resources_:ArchiteResources){
         this.domContainer=dom_;
+        this.resources=resources_;
         this.controlDom=controlDom_;
         this.init();
     }
-
+    resources:ArchiteResources;
     domContainer:HTMLElement=null;
     controlDom:HTMLElement=null;
     renderer=null;
@@ -80,6 +81,10 @@ class ArchiteWebGL{
         //this.scene.add(new THREE.AxisHelper(10000));
         this.labelScene=new THREE.Scene();
 
+        this.markPointsHashMap=new ArchiteHashMap();
+        this.markPointsObject3D=new THREE.Object3D();
+        this.labelScene.add(this.markPointsObject3D);
+
         this.createPerspective();
 
         this.defalutCameraTween=new TWEEN.Tween(this.curCameraPosition);
@@ -120,7 +125,7 @@ class ArchiteWebGL{
     lookatYTweento(y_){
         var that_=this;
         if(!that_.is3D)return;
-        that_.lookatVector3.copy(that_.perspectiveControl.target);
+        that_.reset();
         that_.lookatTween.to({y:y_},500).onUpdate(function(item_){
             that_.perspectiveControl.target.copy(this);
             that_.perspectiveControl.update();
@@ -230,6 +235,9 @@ class ArchiteWebGL{
             this.curArchite.updateBillBoards(this.camera);
         }
 
+        /**         * 矫正标注点         */
+        this.updateMarkPointPosition();
+
         this.renderer.clear();
         if(this.is3D){
             //this.composer.render();
@@ -283,7 +291,7 @@ class ArchiteWebGL{
             that_.defalutCameraTween.start();
         }else{
 
-            that_.hisCameraPosition.copy(this.camera.position);
+            that_.hisCameraPosition.copy(that_.camera.position);
 
             that_.perspectiveTween.stop();
             that_.perspectiveControlSet.maxPolarAngle=Math.PI/2;
@@ -468,22 +476,98 @@ class ArchiteWebGL{
     }
 
     /**     * 摄像头聚焦     */
-    cameraLoocPoint(vec3_:THREE.Vector3){
+    cameraLookPoint(vec3_:THREE.Vector3){
+        var that_=this;
+
+        console.log(vec3_);
 
         //lookat
+        this.camera.lookAt(vec3_);
         this.perspectiveControl.target.copy( vec3_);
 
         //摄像头新地址
         var newPoint_:THREE.Vector3=new THREE.Vector3();
-        newPoint_.subVectors(this.defalutCameraPosition,vec3_);
+        newPoint_.addVectors(this.defalutCameraPosition,vec3_);
+
+        that_.curCameraPosition.copy(that_.camera.position);
+        that_.defalutCameraTween.stop();
+        that_.defalutCameraTween.to({
+            x:newPoint_.x,
+            y:newPoint_.y,
+            z:newPoint_.z
+        },500).onUpdate(function(){
+            that_.camera.position.copy(this);
+            that_.perspectiveControl.update();
+        });
+        that_.defalutCameraTween.start();
 
 
     }
+    markPoints:Array<THREE.Sprite>=[];
+    markPointsObject3D:THREE.Object3D=null;
+    markPointsHashMap:ArchiteHashMap;
+    addMarkPoint(key:any,vec3_:THREE.Vector3){
+        var map_:THREE.Texture=this.resources.getTexture("MARKPOINT");
+        if(!map_){
+            msg("缺少标记纹理！！！");
+            return;
+        }
+        //图标待确认
+        var material_=new THREE.SpriteMaterial({
+            map:map_,
+            color:0xFFFFFF
+        });
+        var sprite_=new THREE.Sprite(material_);
+        var spriteTranslate_:THREE.Object3D=new THREE.Object3D();
+        spriteTranslate_.add(sprite_);
 
+        spriteTranslate_.lockX=vec3_.x;
+        spriteTranslate_.lockY=vec3_.y;
+        spriteTranslate_.lockZ=vec3_.z;
+
+        spriteTranslate_.defaultMaterial=material_;
+        sprite_.scale.set(32,64,1);
+        sprite_.position.set(0,64,0);
+        spriteTranslate_.alwaysShow=true;
+        this.markPointsObject3D.add(spriteTranslate_);
+        this.markPoints.push(spriteTranslate_);
+    }
+    removeMarkPoint(key:any){
+
+
+        var markPoint_=this.markPointsHashMap.get(key);
+        if(!markPoint_)return;
+        this.markPointsHashMap.remove(key);
+        this.markPointsObject3D.remove(markPoint_);
+        for (var i = 0; i < this.markPoints.length; i++) {
+            var markPointForAry = this.markPoints[i];
+            if(markPointForAry==markPoint_){
+                this.markPoints.splice(i,1);
+                return;
+            }
+        }
+
+    }
+    removeAllMarkPoint(){
+        for (var i = 0; i < this.markPoints.length; i++) {
+            var markPoint_ = this.markPoints[i];
+            this.markPointsObject3D.remove(markPoint_);
+        }
+        this.markPoints=[];
+        this.markPointsHashMap.clear();
+    }
+    updateMarkPointPosition(){
+        var proMatrix_ = new THREE.Matrix4();
+        proMatrix_.multiplyMatrices(this.camera.projectionMatrix, this.camera.matrixWorldInverse);
+        updateBillBoards(this.markPointsObject3D,proMatrix_);
+    }
     /**     * 标记地址     */
     markPoint(objData_:any){
 
         var floorID:any=objData_.FloorID;
+
+        /**         * 移除所有标注点         */
+        this.removeAllMarkPoint();
 
         if(this.curArchite) {
             //获取/创建楼层
@@ -491,8 +575,6 @@ class ArchiteWebGL{
             if (!floor_) {
                 return null;
             }
-            this.lookatYTweento(floor_.yAxis);//聚焦
-
             /**         * 搜索店铺         */
             var funcAreas_:any=_.filter(floor_.funcAreas,function(item_){
                 return item_.oriData===objData_;
@@ -508,16 +590,33 @@ class ArchiteWebGL{
                         object:funcArea_.plane.children[0]
                     });
                 }
+                var center_:any=funcArea_.oriData.Center||null;
+                var lookPoint_:THREE.Vector3=new THREE.Vector3();
+                lookPoint_.x=center_[0]||0;
+                lookPoint_.y=center_[1]||0;
+                lookPoint_.z=floor_.yAxis||0;
+
+                this.cameraLookPoint(lookPoint_);
+                this.addMarkPoint(funcArea_.oriData.Name,lookPoint_);
                 return;
             }
 
             /**             * 搜索公共点             */
             var pubPoints_:any=_.filter(floor_.PubPointArrays,function(item_){
+                item_.alwaysShow=false;
                 return item_.oriData===objData_;
             });
             var pubPoint_=(pubPoints_[0]||null);
             if(pubPoint_){//找到服务点
-                console.log(pubPoint_);
+                pubPoint_.alwaysShow=true;
+                var lookPoint_:THREE.Vector3=new THREE.Vector3();
+                lookPoint_.x=pubPoint_.lockX;
+                lookPoint_.y=pubPoint_.lockY+floor_.floorHigh;
+                lookPoint_.z=pubPoint_.lockZ;
+
+                this.cameraLookPoint(lookPoint_);
+
+                this.addMarkPoint(pubPoint_.oriData.Name,lookPoint_);
             }else{
                 msg("未找到模型/标注点");
             }

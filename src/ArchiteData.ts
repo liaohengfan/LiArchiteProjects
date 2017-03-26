@@ -21,11 +21,13 @@
 ///<reference path="../src/ArchiteUI.ts" />
 /**     * 数据管理     */
 class ArchiteData{
-    constructor(ui_:ArchiteUI,webgl_:ArchiteWebGL){
+    constructor(ui_:ArchiteUI,webgl_:ArchiteWebGL,resources_:ArchiteResources){
         this.ui=ui_;
         this.webgl=webgl_;
+        this.resources=resources_;
     }
     ui:ArchiteUI=null;
+    resources:ArchiteResources;
     webgl:ArchiteWebGL=null;
     is3D:Boolean=true;
 
@@ -56,7 +58,7 @@ class ArchiteData{
          * @type {liaohengfan.LI_ARCHITE.ArchiteBase}
          * @private
          */
-        var newArchite_=new ArchiteBase(data_.data,this.is3D);
+        var newArchite_=new ArchiteBase(data_.data,this.is3D,this.resources);
 
         /**             * 更新建筑信息             */
         this.webgl.updateMapByArchiteBase(newArchite_);

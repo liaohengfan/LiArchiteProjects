@@ -116,7 +116,16 @@ class ArchiteSearch{
             .style("margin-top","15px")
             .text("搜索结果");
         this.searchItemContainer=container_.append("div")
-            .attr("class","form-group");
+            .style({
+                "max-height":"240px",
+            })
+            .attr({
+                "class":"form-group",
+                "id":"architeSearchResultDom"
+            });
+
+        //$("#architeSearchResultDom").mCustomScrollbar("update");
+
     }
 
     /**     * 展示公共服务点     */
