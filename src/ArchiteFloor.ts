@@ -169,7 +169,7 @@ class ArchiteFloor{
                 //图标待确认
                 var material_=new THREE.SpriteMaterial({
                     //map:new THREE.TextureLoader().load(ico_),
-                    map:map_,
+                    map:map_,useScreenCoordinates: false,
                     color:0xFFFFFF
                 });
                 var sprite_=new THREE.Sprite(material_);
@@ -327,7 +327,8 @@ class ArchiteFloor{
                         fontface: "Microsoft Yahei"
                         //fontface: "Roboto"
                 });
-
+                positionVec3.x-=((label_.width)||0);
+                positionVec3.y-=((label_.height)||0);
                 label_.lockX=positionVec3.x;
                 label_.lockY=positionVec3.y;
                 label_.lockZ=lockZ;

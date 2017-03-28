@@ -242,11 +242,11 @@ class ArchiteWebGL{
         if(this.is3D){
             //this.composer.render();
             this.renderer.render(this.scene,this.camera);
-            this.renderer.clearDepth();
+            //this.renderer.clearDepth();
             this.renderer.render(this.labelScene,this.labelCamera);
         }else{
             this.renderer.render(this.planeScene,this.camera);
-            this.renderer.clearDepth();
+            ///this.renderer.clearDepth();
             this.renderer.render(this.labelScene,this.labelCamera);
         }
     }
@@ -257,6 +257,7 @@ class ArchiteWebGL{
         /**         * 重置摄像机焦点         */
         this.perspectiveControl.target.copy( this.perspectiveControl.target0 );
         this.hisCameraPosition.copy(this.defalutCameraPosition);
+        //this.perspectiveControl.update();
         //this.perspectiveControl.reset();
     }
 
@@ -465,7 +466,9 @@ class ArchiteWebGL{
 
                 /**                     * 有选中的对象                     */
                 if(intersects.length){
-                    this.selMeshHandler(intersects[0]);
+                    var mesh_:THREE.Mesh=intersects[0];
+                    this.selMeshHandler(mesh_);
+                    this.showItemDetails(mesh_);
                 }
 
 
@@ -473,6 +476,25 @@ class ArchiteWebGL{
                 //msg("no Sel");
             }
         });
+    }
+
+    showDetails:boolean=true;
+    /**
+     * 展示详情
+     * @param data_
+     */
+    showItemDetails(mesh:THREE.Mesh){
+        try {
+            var data_ = (mesh.object.oriData || null);
+            if (!data_) {
+                return;
+            }
+            if (!this.showDetails)return;
+            var details_=data_.Brief||"缺少介绍详情！！";
+            layer.alert(details_, {
+                title: "详情"
+            });
+        }catch (e){}
     }
 
     /**     * 摄像头聚焦     */
@@ -591,13 +613,16 @@ class ArchiteWebGL{
                     });
                 }
                 var center_:any=funcArea_.oriData.Center||null;
+                var markPoint_:THREE.Vector3=new THREE.Vector3();
+                markPoint_.x=center_[0]||0;
+                markPoint_.y=center_[1]||0;
+                markPoint_.z=floor_.yAxis||0;
                 var lookPoint_:THREE.Vector3=new THREE.Vector3();
-                lookPoint_.x=center_[0]||0;
-                lookPoint_.y=center_[1]||0;
-                lookPoint_.z=floor_.yAxis||0;
+                lookPoint_.y=floor_.yAxis;
 
                 this.cameraLookPoint(lookPoint_);
-                this.addMarkPoint(funcArea_.oriData.Name,lookPoint_);
+                //this.reset();
+                this.addMarkPoint(funcArea_.oriData.Name,markPoint_);
                 return;
             }
 
@@ -609,14 +634,17 @@ class ArchiteWebGL{
             var pubPoint_=(pubPoints_[0]||null);
             if(pubPoint_){//找到服务点
                 pubPoint_.alwaysShow=true;
+                var markPoint_:THREE.Vector3=new THREE.Vector3();
+                markPoint_.x=pubPoint_.lockX;
+                markPoint_.y=pubPoint_.lockY;
+                markPoint_.z=pubPoint_.lockZ;
+
                 var lookPoint_:THREE.Vector3=new THREE.Vector3();
-                lookPoint_.x=pubPoint_.lockX;
-                lookPoint_.y=pubPoint_.lockY+floor_.floorHigh;
-                lookPoint_.z=pubPoint_.lockZ;
+                lookPoint_.y=floor_.yAxis;
 
                 this.cameraLookPoint(lookPoint_);
-
-                this.addMarkPoint(pubPoint_.oriData.Name,lookPoint_);
+                //this.reset();
+                this.addMarkPoint(pubPoint_.oriData.Name,markPoint_);
             }else{
                 msg("未找到模型/标注点");
             }

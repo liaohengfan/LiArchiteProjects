@@ -331,6 +331,7 @@ class ArchiteUI{
         if(this.webgl){
             this.webgl.removeAllMarkPoint();
             this.webgl.lookatYTweento(selfloor_.yAxis);
+            //this.webgl.cameraLookPoint(new THREE.Vector3(0,selfloor_.yAxis,0));
         }
     }
 

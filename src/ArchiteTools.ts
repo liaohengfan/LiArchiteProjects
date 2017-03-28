@@ -162,7 +162,7 @@ function makeTextSprite( message, parameters )
     var texture = new THREE.Texture(canvas);
     texture.needsUpdate = true;
     var spriteMaterial = new THREE.SpriteMaterial(
-        { map: texture, useScreenCoordinates: false } );
+        { map: texture,useScreenCoordinates: false } );
     var sprite = new THREE.Sprite( spriteMaterial );
     sprite.defaultMaterial=spriteMaterial;
     sprite.scale.set(100,50,1.0);
@@ -203,6 +203,7 @@ function getDataMesh(data_,high_=1,color_=0xFFFFFF){
                     color:(color_||0xFFFFFF)
                 });
                 var outLine2DMesh_=new THREE.Mesh(outLine2DGeo_,defaultMaterial2D_);
+                outLine2DMesh_.oriData=data_;
                 outLine2DMesh_.defaultMaterial=defaultMaterial2D_;
                 outLine2DMesh_.selMaterial=null;
 
@@ -215,6 +216,7 @@ function getDataMesh(data_,high_=1,color_=0xFFFFFF){
                     side:THREE.DoubleSide
                 });
                 var outLine3DMesh_=new THREE.Mesh(outLine3DGeo_,defaultMaterial3D_);
+                outLine3DMesh_.oriData=data_;
                 outLine3DMesh_.defaultMaterial=defaultMaterial3D_;
                 outLine3DMesh_.selMaterial=null;
                 outLineShape_.autoClose=true;
@@ -264,6 +266,7 @@ function getLimitHeightDataMesh(data_,high_=1,color_=0xFFFFFF){
                     color:(color_||0xFFFFFF)
                 });
                 var outLine2DMesh_=new THREE.Mesh(outLine2DGeo_,defaultMaterial2D_);
+                outLine2DMesh_.oriData=data_;
                 outLine2DMesh_.defaultMaterial=defaultMaterial2D_;
 
                 /**                             * 楼层高度                             */
@@ -273,6 +276,7 @@ function getLimitHeightDataMesh(data_,high_=1,color_=0xFFFFFF){
                 });
                 var outLine3DGeo_=new THREE.ExtrudeGeometry(outLineShape_,buildingExtrudeSettings);
                 var outLine3DMesh_=new THREE.Mesh(outLine3DGeo_,defaultMaterial3D_);
+                outLine3DMesh_.oriData=data_;
                 outLine3DMesh_.defaultMaterial=defaultMaterial3D_;
 
                 outLineShape_.autoClose=true;

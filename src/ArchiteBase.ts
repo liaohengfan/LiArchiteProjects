@@ -57,8 +57,8 @@ class ArchiteBase{
         this.ArchiteSprite=new THREE.Object3D();
         this.ArchiteIcon=new THREE.Object3D();
         this.ArchiteLabel=new THREE.Object3D();
-        this.ArchiteSprite.add(this.ArchiteIcon);
         this.ArchiteSprite.add(this.ArchiteLabel);
+        this.ArchiteSprite.add(this.ArchiteIcon);
 
 
         /**             * 旋转             */
@@ -357,8 +357,8 @@ class ArchiteBase{
                 if(floor_.showStuts==0){
                     continue;
                 }else{
-                    if(this.pubPointShow)floor_.updateSpritesPosition(proMatrix_);
                     if(this.funcareaLabelShow)floor_.updateLabelsPosition(proMatrix_);
+                    if(this.pubPointShow)floor_.updateSpritesPosition(proMatrix_);
                 }
             }
         }
