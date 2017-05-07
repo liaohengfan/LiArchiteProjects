@@ -133,7 +133,15 @@ class ArchiteBase{
      * @returns {any}
      */
     getDefaultFoolr(){
-        return this.oriData.building.DefaultFloor;
+
+        var default_=this.oriData.building.DefaultFloor;
+        var returnFloors_=default_;
+        if(_.findWhere(this.oriData.Floors,{_id:default_})){
+            returnFloors_=default_;
+        }else{
+            returnFloors_=_.first(this.oriData.Floors)._id||"";
+        }
+        return returnFloors_;
     }
 
     /**         * 获取楼层Y轴坐标         */
