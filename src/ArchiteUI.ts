@@ -31,8 +31,8 @@ class ArchiteUI{
             this.appendUIStyle(".architeScaleContainer{position:absolute;top:1vw;left:1vw;width:36px;}");
             this.appendUIStyle(".scaleBtn{width:100%;height:36px;padding:0;margin:0;}");
             this.appendUIStyle(".architeSearchDiv{position:absolute;right:1vw;top:1vw;}");
-            this.appendUIStyle(".architeFloorBtnContainer{position:absolute;right:2vw;top:70px;width:36px;}");
-            this.appendUIStyle(".architeFloorBtn{width:100%;height:36px;padding:0;margin:0;}");
+            this.appendUIStyle(".architeFloorBtnContainer{position:absolute;right:2vw;top:70px;}");
+            this.appendUIStyle(".architeFloorBtn{width:100%;height:36px;padding:5px;margin:0;}");
             this.appendUIStyle(".architeFloorList{width:100%;}");
             this.appendUIStyle(".architeSearchInput{width: 20vw;height:1.8vw;line-height: 1.8vw;}");
             this.appendUIStyle(".architeSearchBtn{ width:3vw;height:2vw;}");
@@ -45,7 +45,7 @@ class ArchiteUI{
             this.appendUIStyle(".architeScaleContainer{position:absolute;top:10px;left:10px;width:30px;}");
             this.appendUIStyle(".scaleBtn{width:100%;height:30px;padding:0;margin:0;}");
             this.appendUIStyle(".architeSearchDiv{position:absolute;right:1vw;top:1vw;}");
-            this.appendUIStyle(".architeFloorBtnContainer{position:absolute;right:5vw;top:16vw;width:11vw;}");
+            this.appendUIStyle(".architeFloorBtnContainer{position:absolute;right:5vw;top:16vw;}");
             //this.appendUIStyle(".architeFloorBtn{padding:0;margin:0;}");
             //this.appendUIStyle(".architeFloorBtn{width:100%;height:6vw;padding:0;margin:0;}");
             this.appendUIStyle(".architeFloorList{width:100%;}");

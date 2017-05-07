@@ -21,6 +21,7 @@
 ///<reference path="ArchiteTools.ts" />
 ///<reference path="ArchiteBase.ts" />
 ///<reference path="ArchiteRender.ts" />
+///<reference path="ArchiteResources.ts" />
 
 var V_WIDTH:any=1280;
 var V_HEIGHT:any=720;

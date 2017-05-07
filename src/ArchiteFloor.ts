@@ -160,6 +160,8 @@ class ArchiteFloor{
                 var point_ = this.floorData.PubPoint[i];
                 var position_=point_.Outline[0][0];
                 var positionVec3=new THREE.Vector3(position_[0]||0,position_[1],y_z);
+                positionVec3.x*=20;
+                positionVec3.y*=20;
                 var ico_=getIconUrlByType(point_.Type);
                 var map_:THREE.Texture=this.resources.getTexture(point_.Type);
                 if(!map_){
@@ -257,12 +259,15 @@ class ArchiteFloor{
             var high_=this.floorData.High;
             /**                     * 编译所有店面轮廓                     */
             for (var i = 0; i < funcareas_.length; i++) {
+                var curfuncarea_=funcareas_[i];
+
+                if(curfuncarea_.Follow=="1")continue;//团体参展
 
                 var colors_=[0xc9fbc9,0x97c9fb,0xc9c9fb];
                 var color_=_.sample(colors_);
 
                 //创建门店
-                var funcarea_ = new ArchiteFuncArea(funcareas_[i],high_,color_);
+                var funcarea_ = new ArchiteFuncArea(curfuncarea_,high_,color_);
                 this.funcAreaMesh.add(funcarea_.mesh);
 
                 funcarea_.outLine.position.z=high_*10;
@@ -310,8 +315,11 @@ class ArchiteFloor{
 
             for (var i = 0; i < this.floorData.FuncAreas.length; i++) {
                 var point_ = this.floorData.FuncAreas[i];
-                var position_=point_.Center;
+                var position_=point_.Center||point_.Center||[0,0];
                 var positionVec3=new THREE.Vector3(position_[0]||0,position_[1],y_z);
+
+                positionVec3.x*=20;
+                positionVec3.y*=20;
                 /*
                 var material_=new THREE.SpriteMaterial({
                     map:getLabelTexture(point_.Name||" "),
@@ -320,15 +328,16 @@ class ArchiteFloor{
                 material_.map.needsUpdate=true;
                 var label_=new THREE.Sprite(material_);
                 */
-                var label_=makeTextSprite(point_.Name||"",{
+                var funcName_=point_.Name||point_.Name_all||"";
+                var label_=makeTextSprite(funcName_||"",{
                         color: "#231815",
                         fontsize: 40,
                         //fontface: "Helvetica, MicrosoftYaHei "
                         fontface: "Microsoft Yahei"
                         //fontface: "Roboto"
                 });
-                positionVec3.x-=((label_.width)||0);
-                positionVec3.y-=((label_.height)||0);
+                //positionVec3.x-=((label_.width)||0);
+                //positionVec3.y-=((label_.height)||0);
                 label_.lockX=positionVec3.x;
                 label_.lockY=positionVec3.y;
                 label_.lockZ=lockZ;

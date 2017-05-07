@@ -341,7 +341,7 @@ class ArchiteSearch{
             ars.push(_.filter(floor_.FuncAreas||[],(item_)=>{
                 item_.FloorNo=floorName_;
                 item_.FloorID=floorID_;
-                return this.nameMatch(item_.Name,str_);
+                return this.nameMatch(item_.Name_all,str_);
             }));
 
             //公共设施

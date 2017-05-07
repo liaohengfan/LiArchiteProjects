@@ -126,6 +126,7 @@ class ArchiteWebGL{
         var that_=this;
         if(!that_.is3D)return;
         that_.reset();
+        this.lookatVector3.copy(this.perspectiveControl.target0);
         that_.lookatTween.to({y:y_},500).onUpdate(function(item_){
             that_.perspectiveControl.target.copy(this);
             that_.perspectiveControl.update();
@@ -147,9 +148,6 @@ class ArchiteWebGL{
         this.camera.up.set(0,1,0);
         this.camera.lookAt(new THREE.Vector3(0,0,0));
         this.camera.position.z=1200;
-        //this.camera.position.y=800;
-        //this.camera.position.x=-800;
-
         var control=new THREE.OrbitControls(this.camera,this.controlDom);
         control.maxPolarAngle=Math.PI/2;
         control.minPolarAngle=0;
@@ -159,6 +157,14 @@ class ArchiteWebGL{
         control.maxDistance = 50000;
         control.maxDistance=Infinity;
         control.enableKeys=false;
+
+
+        var tanslatex_=90.0860720836;
+        var tanslatez_=-43.9787404304;
+        var tanslate_=new THREE.Vector3(tanslatex_*20,0,tanslatez_*20);
+        control.target.copy(tanslate_);
+        control.target0.copy(tanslate_);
+
         this.perspectiveControl=control;
         this.cameraControls.push(control);
         //control.update();
@@ -234,6 +240,9 @@ class ArchiteWebGL{
         if(this.curArchite){
             this.curArchite.updateBillBoards(this.camera);
         }
+
+        this.perspectiveControl.target;
+        this.perspectiveControl.target0;
 
         /**         * 矫正标注点         */
         this.updateMarkPointPosition();
@@ -339,9 +348,9 @@ class ArchiteWebGL{
 
 
             if(IsPC()){
-                this.defalutCameraPosition.set(0,1367,-1269);
+                this.defalutCameraPosition.set(1815,631,670);
             }else{
-                this.defalutCameraPosition.set(0,2348,-2529);
+                this.defalutCameraPosition.set(1815,1231,800);
             }
             this.hisCameraPosition.copy(this.defalutCameraPosition);
 
@@ -490,8 +499,15 @@ class ArchiteWebGL{
                 return;
             }
             if (!this.showDetails)return;
-            var details_=data_.Brief||"缺少介绍详情！！";
-            layer.alert(details_, {
+
+            var info_="<div>" +
+                "<h3>"+(data_.Name_all||'')+"</h3>" +
+                "<p>展位号："+(data_.booth_id||'')+"</p>" +
+                "<em><a href='"+(data_.externalLink||'')+"'>详细信息</a></em>" +
+                "</div>";
+
+            //var details_=data_.Brief||"缺少介绍详情！！";
+            layer.alert(info_, {
                 title: "详情"
             });
         }catch (e){}

@@ -31,18 +31,20 @@ function getPositionByLonLat(phi_,theta_,radius_){
     return position_;
 }
 
-
-function Rect(minx,miny,maxx,maxy){
-    this.tl = [minx || 0, miny || 0]; //top left point
-    this.br = [maxx || 0, maxy || 0]; //bottom right point
-}
-
-Rect.prototype.isCollide = function(rect){
-    if(rect.br[0] < this.tl[0] || rect.tl[0] > this.br[0] ||
-        rect.br[1] < this.tl[1] || rect.tl[1] > this.br[1]){
-        return false;
+class Rect{
+    tl:Array<any>=[];
+    br:Array<any>=[];
+    constructor(minx,miny,maxx,maxy) {
+        this.tl = [minx || 0, miny || 0]; //top left point
+        this.br = [maxx || 0, maxy || 0]; //bottom right point
     }
-    return true;
+    isCollide = function(rect){
+        if(rect.br[0] < this.tl[0] || rect.tl[0] > this.br[0] ||
+            rect.br[1] < this.tl[1] || rect.tl[1] > this.br[1]){
+            return false;
+        }
+        return true;
+    }
 }
 
 /**     * 更新广告牌位置     */
@@ -144,6 +146,7 @@ function makeTextSprite( message, parameters )
         parameters["backgroundColor"] : { r:255, g:255, b:255, a:1.0 };
     var fontColor = parameters.hasOwnProperty("color")?        parameters["color"] : "#000000";
     var canvas = document.createElement('canvas');
+    //canvas.width=500;
     var context = canvas.getContext('2d');
     context.font = fontsize + "px " + fontface;
     var metrics = context.measureText( message );
@@ -165,8 +168,10 @@ function makeTextSprite( message, parameters )
         { map: texture,useScreenCoordinates: false } );
     var sprite = new THREE.Sprite( spriteMaterial );
     sprite.defaultMaterial=spriteMaterial;
+    //sprite.scale.set(200,50,1.0);
     sprite.scale.set(100,50,1.0);
-    sprite.width = metrics.width/2;
+    //sprite.scale.set(metrics.width,50,1.0);
+    sprite.width = metrics.width/3;
     sprite.height = fontsize*0.8;
     return sprite;
 }
@@ -194,8 +199,19 @@ function getDataMesh(data_,high_=1,color_=0xFFFFFF){
         for (var i = 0; i < data_.Outline.length; i++) {
             var outlinePoints_ = data_.Outline[i];
             outlinePoints_=outlinePoints_||[];
+
             for (var j = 0; j < outlinePoints_.length; j++) {
-                var point = parseVec2Points(outlinePoints_[j]);
+
+                var outline_=outlinePoints_[j];
+
+                console.log("before:"+outline_);
+                outline_= _.map(outline_,function(item_){
+                    item_*=20;
+                    return item_;
+                });
+                console.log("after:"+outline_);
+
+                var point = parseVec2Points(outline_);
                 var outLineShape_=new THREE.Shape(point);
 
                 var outLine2DGeo_=new THREE.ShapeGeometry(outLineShape_);
@@ -258,7 +274,19 @@ function getLimitHeightDataMesh(data_,high_=1,color_=0xFFFFFF){
             var outlinePoints_ = data_.Outline[i];
             outlinePoints_=outlinePoints_||[];
             for (var j = 0; j < outlinePoints_.length; j++) {
-                var point = parseVec2Points(outlinePoints_[j]);
+
+
+
+                var outline_=outlinePoints_[j];
+
+                console.log("before:"+outline_);
+                outline_=_.map(outline_,function(item_){
+                    item_*=20;
+                    return item_;
+                });
+                console.log("after:"+outline_);
+
+                var point = parseVec2Points(outline_);
                 var outLineShape_=new THREE.Shape(point);
 
                 var outLine2DGeo_=new THREE.ShapeGeometry(outLineShape_);

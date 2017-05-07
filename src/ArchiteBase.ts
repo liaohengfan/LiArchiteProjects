@@ -66,6 +66,10 @@ class ArchiteBase{
         this.floorGround2D.rotateX(-(Math.PI/2));
         this.ArchiteMesh.rotateX(-(Math.PI/2));
         this.ArchiteMesh2D.rotateX(-(Math.PI/2));
+
+
+        //[90.0860720836,43.9787404304]
+        //this.ArchiteSprite.position.copy(tanslateSprite_);
         //this.ArchiteSprite.rotateX(-(Math.PI/2));
 
         //大厦轮廓
