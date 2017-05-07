@@ -37,7 +37,8 @@ function init() {
     //architeDataMana_.getMapsbyAjax("ajaxData/aiqing.json",{});
     //architeDataMana_.getMapsbyAjax("ajaxData/fangcaodi.json",{});
     //architeDataMana_.getMapsbyAjax("ajaxData/wbh1.json",{});
-    architeDataMana_.getMapsbyAjax("ajaxData/Hall5-2-1.json", {});
+    //architeDataMana_.getMapsbyAjax("ajaxData/Hall5-2-1.json",{});
+    architeDataMana_.getMapsbyAjax("ajaxData/Hall6.json", {});
     function render() {
         requestAnimationFrame(render);
         architeMain_.render();

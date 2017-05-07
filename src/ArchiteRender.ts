@@ -518,14 +518,19 @@ class ArchiteWebGL{
         var that_=this;
 
         console.log(vec3_);
-
+        var y_=vec3_.y;
+        vec3_.copy(this.perspectiveControl.target0);
+        vec3_.y=y_;
         //lookat
         this.camera.lookAt(vec3_);
-        this.perspectiveControl.target.copy( vec3_);
+
+        this.perspectiveControl.target.y=vec3_.y;
+        //this.perspectiveControl.target.copy( vec3_);
 
         //摄像头新地址
         var newPoint_:THREE.Vector3=new THREE.Vector3();
-        newPoint_.addVectors(this.defalutCameraPosition,vec3_);
+        //newPoint_.addVectors(this.defalutCameraPosition,vec3_);
+        newPoint_.copy(this.defalutCameraPosition);
 
         that_.curCameraPosition.copy(that_.camera.position);
         that_.defalutCameraTween.stop();
@@ -633,6 +638,10 @@ class ArchiteWebGL{
                 markPoint_.x=center_[0]||0;
                 markPoint_.y=center_[1]||0;
                 markPoint_.z=floor_.yAxis||0;
+
+                markPoint_.x*=20;
+                markPoint_.y*=20;
+
                 var lookPoint_:THREE.Vector3=new THREE.Vector3();
                 lookPoint_.y=floor_.yAxis;
 
@@ -654,6 +663,10 @@ class ArchiteWebGL{
                 markPoint_.x=pubPoint_.lockX;
                 markPoint_.y=pubPoint_.lockY;
                 markPoint_.z=pubPoint_.lockZ;
+
+
+                //markPoint_.x*=20;
+                //markPoint_.y*=20;
 
                 var lookPoint_:THREE.Vector3=new THREE.Vector3();
                 lookPoint_.y=floor_.yAxis;

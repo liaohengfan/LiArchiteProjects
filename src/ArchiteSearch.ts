@@ -341,20 +341,20 @@ class ArchiteSearch{
             ars.push(_.filter(floor_.FuncAreas||[],(item_)=>{
                 item_.FloorNo=floorName_;
                 item_.FloorID=floorID_;
-                return this.nameMatch(item_.Name_all,str_);
+                return this.nameMatch(item_.Name_all||item_.Name||"",str_);
             }));
 
             //公共设施
             ars.push(_.filter(floor_.PubPoint||[],(item_)=>{
                 item_.FloorNo=floorName_;
                 item_.FloorID=floorID_;
-                return this.nameMatch(item_.Name,str_);
+                return this.nameMatch(item_.Name||item_.name||"",str_);
             }));
         }
 
         //转换为1维度数组去除嵌套
         var itemLists_:Array<any>=_.sortBy(_.flatten(ars),function(item_){
-            return (item_.Name||"").length;
+            return (item_.Name_all||item_.Name||item_.name||"").length;
         });
 
         //显示
