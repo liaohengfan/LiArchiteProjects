@@ -126,7 +126,9 @@ class ArchiteWebGL{
         var that_=this;
         if(!that_.is3D)return;
         that_.reset();
+
         this.lookatVector3.copy(this.perspectiveControl.target0);
+
         that_.lookatTween.to({y:y_},500).onUpdate(function(item_){
             that_.perspectiveControl.target.copy(this);
             that_.perspectiveControl.update();
@@ -384,7 +386,11 @@ class ArchiteWebGL{
             this.labelScene.add(archite_.ArchiteSprite);
 
             //展示默认楼层
-            archite_.showFloorsMeshByID(archite_.getDefaultFoolr());
+            var floor_=archite_.showFloorsMeshByID(archite_.getDefaultFoolr());
+
+            if(floor_){
+                this.cameraLookPoint(new THREE.Vector3(0,floor_.yAxis,0));
+            }
 
             //显示楼层公共服务点
             archite_.enabledFloorsPubPoints(true);
@@ -546,6 +552,7 @@ class ArchiteWebGL{
         var newPoint_:THREE.Vector3=new THREE.Vector3();
         //newPoint_.addVectors(this.defalutCameraPosition,vec3_);
         newPoint_.copy(this.defalutCameraPosition);
+        newPoint_.y+=vec3_.y;
 
         that_.curCameraPosition.copy(that_.camera.position);
         that_.defalutCameraTween.stop();

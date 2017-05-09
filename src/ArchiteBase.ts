@@ -166,7 +166,7 @@ class ArchiteBase{
                 return ((item_._id<id_)&&(item_._id>=0));
             });
             _.map(trueFloors,function(item_){
-                y_+=(item_.High||0);
+                y_+=(parseInt(item_.High)||0);
             });
             return y_;
         }else{
@@ -174,7 +174,7 @@ class ArchiteBase{
                 return ((item_._id>=id_)&&(item_._id<=0));
             });
             _.map(trueFloors,function(item_){
-                y_-=(item_.High||0);
+                y_-=((parseInt(item_.High)||0);
             });
             return y_;
         }

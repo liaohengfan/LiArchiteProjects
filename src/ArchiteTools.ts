@@ -172,6 +172,7 @@ function makeTextSprite( message, parameters )
     sprite.scale.set(100,50,1.0);
     //sprite.scale.set(metrics.width,50,1.0);
     sprite.width = metrics.width/3;
+    sprite.contentWidth=metrics.width;
     sprite.height = fontsize*0.8;
     return sprite;
 }
@@ -213,7 +214,7 @@ function getDataMesh(data_,high_=1,color_=0xFFFFFF){
 
                 var point = parseVec2Points(outline_);
                 var outLineShape_=new THREE.Shape(point);
-
+                console.log("当前："+i);
                 var outLine2DGeo_=new THREE.ShapeGeometry(outLineShape_);
                 var defaultMaterial2D_=new THREE.MeshBasicMaterial({
                     color:(color_||0xFFFFFF)
@@ -288,7 +289,7 @@ function getLimitHeightDataMesh(data_,high_=1,color_=0xFFFFFF){
 
                 var point = parseVec2Points(outline_);
                 var outLineShape_=new THREE.Shape(point);
-
+                console.log("当前："+i);
                 var outLine2DGeo_=new THREE.ShapeGeometry(outLineShape_);
                 var defaultMaterial2D_=new THREE.MeshBasicMaterial({
                     color:(color_||0xFFFFFF)

@@ -298,14 +298,16 @@ class ArchiteUI{
         }
         var floorsData_=archite_.oriData.Floors||[];
         that_.floorDom=d3.select(that_.domContainer).append("div");
-        that_.floorDom.attr("class","architeFloorBtnContainer row");
+        //that_.floorDom.attr("class","architeFloorBtnContainer row");
+        that_.floorDom.attr("class","architeFloorBtnContainer");
         var _floorDom=that_.floorDom;
 
         //所有楼层
         if(this.allFloorsBtnEnabled) {
             var allBtn_ = _floorDom.append("button")
             //.attr("class","architeFloorBtn")
-                .attr("class", "btn btn-default architeFloorBtn col-xs-12")
+                //.attr("class", "btn btn-default architeFloorBtn col-xs-12")
+                .attr("class", "btn btn-default architeFloorBtn")
                 .text("All");
             allBtn_.on("click", function (e_) {
                 that_.showAllFloors();
@@ -320,7 +322,8 @@ class ArchiteUI{
             .enter()
             .append("button")
             //.attr("class","architeFloorBtn")
-            .attr("class","btn btn-default architeFloorBtn  col-xs-12")
+            .attr("class","btn btn-default architeFloorBtn")
+            //.attr("class","btn btn-default architeFloorBtn  col-xs-12")
             .text(function(item_){
                 return item_.Name||"--";
             })
@@ -346,8 +349,8 @@ class ArchiteUI{
         var selfloor_=this.curArchite.showFloorsMeshByID(item_._id,hideOther_);
         if(this.webgl){
             this.webgl.removeAllMarkPoint();
-            this.webgl.lookatYTweento(selfloor_.yAxis);
-            //this.webgl.cameraLookPoint(new THREE.Vector3(0,selfloor_.yAxis,0));
+            //this.webgl.lookatYTweento(selfloor_.yAxis);
+            this.webgl.cameraLookPoint(new THREE.Vector3(0,selfloor_.yAxis,0));
         }
     }
 

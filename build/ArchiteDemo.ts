@@ -59,7 +59,7 @@ function init(){
 
     uimana_.viewPatternSwitch(false);//3D模式选择  true默认选中 false未选中
 
-    uimana_.floorsBtn(true,false);//楼层按钮   1是否显示楼层按钮  2是否显示 全部楼层按钮   1优先级最高
+    uimana_.floorsBtn(true,true);//楼层按钮   1是否显示楼层按钮  2是否显示 全部楼层按钮   1优先级最高
     //uimana_.showFuncSelectSwitch();
     //uimana_.showFuncAreaNameSwitch();
     //uimana_.showPubPointSwitch();
@@ -74,7 +74,9 @@ function init(){
     //architeDataMana_.getMapsbyAjax("ajaxData/fangcaodi.json",{});
     //architeDataMana_.getMapsbyAjax("ajaxData/wbh1.json",{});
     //architeDataMana_.getMapsbyAjax("ajaxData/Hall5-2-1.json",{});
-    architeDataMana_.getMapsbyAjax("ajaxData/Hall6.json",{});
+    //architeDataMana_.getMapsbyAjax("ajaxData/Hall6.json",{});
+    //architeDataMana_.getMapsbyAjax("ajaxData/Hall-all.json",{});
+    architeDataMana_.getMapsbyAjax("ajaxData/Hall-m123456789.json",{});
 
     function render(){
         requestAnimationFrame(render);

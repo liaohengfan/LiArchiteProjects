@@ -331,6 +331,10 @@ class ArchiteFloor{
                         fontface: "Microsoft Yahei"
                         //fontface: "Roboto"
                 });
+
+                //var translate_=(label_.contentWidth-100)/3;
+                //positionVec3.x+=20;
+                //positionVec3.y+=translate_;
                 label_.lockX=positionVec3.x;
                 label_.lockY=positionVec3.y;
                 label_.lockZ=lockZ;
