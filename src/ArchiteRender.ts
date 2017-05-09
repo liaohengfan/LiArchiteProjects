@@ -159,11 +159,11 @@ class ArchiteWebGL{
         control.enableKeys=false;
 
 
-        var tanslatex_=90.0860720836;
+        /*var tanslatex_=90.0860720836;
         var tanslatez_=-43.9787404304;
         var tanslate_=new THREE.Vector3(tanslatex_*20,0,tanslatez_*20);
         control.target.copy(tanslate_);
-        control.target0.copy(tanslate_);
+        control.target0.copy(tanslate_);*/
 
         this.perspectiveControl=control;
         this.cameraControls.push(control);
@@ -271,9 +271,9 @@ class ArchiteWebGL{
     }
 
     /**         * 3D切换         */
-    enabled3D(enable_){
+    enabled3D(enable_,saveCur3DPosition_:boolean=true){
         var that_=this;
-
+        if(enable_==this.is3D)return;
         if(that_.SelMesh){
             that_.SelMesh.material=that_.SelMesh.defaultMaterial;
             that_.SelMesh=null;
@@ -301,7 +301,9 @@ class ArchiteWebGL{
             that_.defalutCameraTween.start();
         }else{
 
-            that_.hisCameraPosition.copy(that_.camera.position);
+            if(saveCur3DPosition_){
+                that_.hisCameraPosition.copy(that_.camera.position);
+            }
 
             that_.perspectiveTween.stop();
             that_.perspectiveControlSet.maxPolarAngle=Math.PI/2;
@@ -334,28 +336,41 @@ class ArchiteWebGL{
         }
     }
 
+    /**     * 设置摄像机默认视角     */
+    setDefaultCameraPosition(
+        lookAtPoint:Array<number>=[0,0,0],
+        pcVec3:Array<number>=[1815,631,670],
+        mobileVec3:Array<number>=[1815,1231,800]
+        ){
+        if(!mobileVec3){
+            mobileVec3=pcVec3;
+        }
+       /* var tanslatex_=90.0860720836;
+        var tanslatez_=-43.9787404304;
+        var tanslate_=new THREE.Vector3(tanslatex_*20,0,tanslatez_*20);*/
+
+        var tanslate_=new THREE.Vector3(lookAtPoint[0]||0,lookAtPoint[1]||0,lookAtPoint[2]||0);
+        this.perspectiveControl.target.copy(tanslate_);
+        this.perspectiveControl.target0.copy(tanslate_);
+
+        if(IsPC()){
+            this.defalutCameraPosition.set(pcVec3[0]||0,pcVec3[1]||0,pcVec3[2]||0);
+            //this.defalutCameraPosition.set(1815,631,670);
+        }else{
+            this.defalutCameraPosition.set(mobileVec3[0]||0,mobileVec3[1]||0,mobileVec3[2]||0);
+            //this.defalutCameraPosition.set(1815,1231,800);
+        }
+
+        this.hisCameraPosition.copy(this.defalutCameraPosition);
+        this.camera.position.copy(this.defalutCameraPosition);
+        this.perspectiveControl.update();
+
+    }
+
     /**         * 刷新地图数据         */
     updateMapByArchiteBase(archite_:ArchiteBase){
         this.curArchite=archite_;
         if(archite_){
-
-            //设置相机默认位置
-            //var theta_=((archite_.oriData.building._xLon||0)+180)*(Math.PI/180);
-            //var phi_=((archite_.oriData.building._yLat||0)+180)*(Math.PI/180);
-            /*var theta_=(archite_.oriData.building._xLon||0)*(Math.PI/180);
-             var phi_=(archite_.oriData.building._yLat||0)*(Math.PI/180);
-             this.defalutCameraPosition.copy(getPositionByLonLat(phi_,theta_,1200));*/
-
-
-            if(IsPC()){
-                this.defalutCameraPosition.set(1815,631,670);
-            }else{
-                this.defalutCameraPosition.set(1815,1231,800);
-            }
-            this.hisCameraPosition.copy(this.defalutCameraPosition);
-
-            this.camera.position.copy(this.defalutCameraPosition);
-            this.perspectiveControl.update();
 
             //添加大厦地板
             this.scene.add(archite_.floorGround);

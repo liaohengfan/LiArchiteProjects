@@ -204,12 +204,12 @@ function getDataMesh(data_,high_=1,color_=0xFFFFFF){
 
                 var outline_=outlinePoints_[j];
 
-                console.log("before:"+outline_);
+                //console.log("before:"+outline_);
                 outline_= _.map(outline_,function(item_){
                     item_*=20;
                     return item_;
                 });
-                console.log("after:"+outline_);
+                //console.log("after:"+outline_);
 
                 var point = parseVec2Points(outline_);
                 var outLineShape_=new THREE.Shape(point);
@@ -279,12 +279,12 @@ function getLimitHeightDataMesh(data_,high_=1,color_=0xFFFFFF){
 
                 var outline_=outlinePoints_[j];
 
-                console.log("before:"+outline_);
+                //console.log("before:"+outline_);
                 outline_=_.map(outline_,function(item_){
                     item_*=20;
                     return item_;
                 });
-                console.log("after:"+outline_);
+                //console.log("after:"+outline_);
 
                 var point = parseVec2Points(outline_);
                 var outLineShape_=new THREE.Shape(point);

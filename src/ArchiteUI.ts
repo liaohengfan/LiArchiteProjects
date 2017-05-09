@@ -172,7 +172,7 @@ class ArchiteUI{
      * @param pos_
      * @param callBack_
      */
-    private createCheckBox(name_,pos_,callBack_){
+    private createCheckBox(name_,pos_,callBack_,checkStatus_:boolean=true){
         callBack_=callBack_||function(){};
         var checkItem_=this.checkBoxContainer.append("div")
             .attr("class","architeSwitchDiv");
@@ -183,10 +183,12 @@ class ArchiteUI{
             .attr({
                 "class":"architeSwitchCheckBox",
                 "type":"checkbox",
-                "checked":"",
                 "name":"open",
                 "title":name_
             });
+        if(checkStatus_){
+            checkBox_.attr("checked","");
+        }
         checkItem_.on("click",function(e_){
             var enbaled_ = checkBox_[0][0].checked;
             callBack_(enbaled_);
@@ -264,7 +266,7 @@ class ArchiteUI{
     }
 
     viewModels:any=null;
-    public viewPatternSwitch(){
+    public viewPatternSwitch(select_:boolean=true){
         var that_=this;
         if(this.viewModels)return;
         this.viewModels=this.createCheckBox("三维展示",[0,100,0,0],function(enabled_){
@@ -272,12 +274,24 @@ class ArchiteUI{
             if(that_.webgl){
                 that_.webgl.enabled3D(enabled_);
             }
-        });
+        },select_);
     }
 
     floorDom:any=null;
+
+    floorsBtnEnabled:boolean=true;
+    allFloorsBtnEnabled:boolean=true;
+    public floorsBtn(enabled_:boolean=true,allEnabeld_:boolean=true){
+        this.floorsBtnEnabled=enabled_;
+        this.allFloorsBtnEnabled=allEnabeld_;
+    }
+
     /**         * 创建楼层管理         */
     private createFloorsBtn(archite_:ArchiteBase){
+
+        //不创建楼层按钮
+        if(!this.floorsBtnEnabled)return;
+
         var that_=this;
         if(that_.floorDom){
             return;
@@ -288,13 +302,15 @@ class ArchiteUI{
         var _floorDom=that_.floorDom;
 
         //所有楼层
-        var allBtn_=_floorDom.append("button")
+        if(this.allFloorsBtnEnabled) {
+            var allBtn_ = _floorDom.append("button")
             //.attr("class","architeFloorBtn")
-            .attr("class","btn btn-default architeFloorBtn col-xs-12")
-            .text("All");
-        allBtn_.on("click",function(e_){
-            that_.showAllFloors();
-        });
+                .attr("class", "btn btn-default architeFloorBtn col-xs-12")
+                .text("All");
+            allBtn_.on("click", function (e_) {
+                that_.showAllFloors();
+            });
+        }
 
         var floorsDiv_=_floorDom.append("div")
             .attr("class","architeFloorList");

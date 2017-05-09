@@ -315,19 +315,14 @@ class ArchiteFloor{
 
             for (var i = 0; i < this.floorData.FuncAreas.length; i++) {
                 var point_ = this.floorData.FuncAreas[i];
+
+                if(point_.Follow=="1")continue;//团体参展
+
                 var position_=point_.Center||point_.Center||[0,0];
                 var positionVec3=new THREE.Vector3(position_[0]||0,position_[1],y_z);
 
                 positionVec3.x*=20;
                 positionVec3.y*=20;
-                /*
-                var material_=new THREE.SpriteMaterial({
-                    map:getLabelTexture(point_.Name||" "),
-                    color:0xFFFFFF
-                });
-                material_.map.needsUpdate=true;
-                var label_=new THREE.Sprite(material_);
-                */
                 var funcName_=point_.Name||point_.Name_all||"";
                 var label_=makeTextSprite(funcName_||"",{
                         color: "#231815",
@@ -336,8 +331,6 @@ class ArchiteFloor{
                         fontface: "Microsoft Yahei"
                         //fontface: "Roboto"
                 });
-                //positionVec3.x-=((label_.width)||0);
-                //positionVec3.y-=((label_.height)||0);
                 label_.lockX=positionVec3.x;
                 label_.lockY=positionVec3.y;
                 label_.lockZ=lockZ;

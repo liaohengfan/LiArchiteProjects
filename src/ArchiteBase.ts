@@ -28,8 +28,7 @@
  *
  *  changes AM 10:37
  *
- */
-
+ */;
 /**     * 建筑基类     */
 class ArchiteBase{
     constructor(data_:any,is3D_,resources_:ArchiteResources){
@@ -134,14 +133,28 @@ class ArchiteBase{
      */
     getDefaultFoolr(){
 
-        var default_=this.oriData.building.DefaultFloor;
-        var returnFloors_=default_;
-        if(_.findWhere(this.oriData.Floors,{_id:default_})){
-            returnFloors_=default_;
-        }else{
-            returnFloors_=_.first(this.oriData.Floors)._id||"";
+        //数据中的默认地址
+        var default_ = this.oriData.building.DefaultFloor;
+        var returnFloors_ = default_;
+
+        //地址携带的默认
+        var addr_=this.getQueryString("defaultFloor");
+
+        if(addr_&&_.findWhere(this.oriData.Floors,{_id:addr_})){
+                returnFloors_=addr_;
+        }else if (_.findWhere(this.oriData.Floors, {_id: default_})) {
+                returnFloors_ = default_;
+        }else {
+                returnFloors_ = _.first(this.oriData.Floors)._id || "";
         }
         return returnFloors_;
+    }
+
+    getQueryString(name)
+    {
+        var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+        var r = window.location.search.substr(1).match(reg);
+        if(r!=null)return  decodeURI(r[2]); return null;
     }
 
     /**         * 获取楼层Y轴坐标         */

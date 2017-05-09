@@ -26,6 +26,9 @@ class ArchiteSearch{
     domContainer:any=null;
     curArchite:ArchiteBase=null;
     uiMana:ArchiteUI=null;
+
+    searchNullPrompt:string="无搜索结果";
+
     constructor(parentDom_:HTMLElement,uiMana_:ArchiteUI){
         this.parentDomContainer=parentDom_;
         this.uiMana=uiMana_;
@@ -169,7 +172,7 @@ class ArchiteSearch{
         list_=list_||[];
         this.clearSearchItem();
         if(!list_.length){
-            msg("无搜索结果!");
+            msg(this.searchNullPrompt);
             this.showSearchResult();
             return;
         }
