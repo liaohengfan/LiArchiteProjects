@@ -23,7 +23,8 @@ function init() {
     //摄像头配置参数  x  y z
     architeMain_.architewebgl.setDefaultCameraPosition([1800, 0, -800], //摄像机焦点  聚焦点 视点
     [1815, 631, 670], // 电脑上默认摄像机位置
-    [1815, 1231, 800]);
+    [1815, 1231, 800] // 手机上摄像机位置
+    );
     //图标校正
     architeMain_.setIconCheck([
         { name: "ATM", type: "31003", ico: "ATM.png", en: "" },
