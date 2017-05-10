@@ -34,17 +34,17 @@ var PI2:any=Math.PI*2;
 var ICON_ASSET_BASE:string="asset/PublicPointIco/";
 var ICON_TYPE_CHECK:Array<any>=[
     {name:"ATM",type:"31003",ico:"ATM.png",en:""},
-    {name:"残障洗手间",type:"11005",ico:"crippled.png",en:""},
-    {name:"出入口",type:"31004",ico:"entry.png",en:""},
-    {name:"扶梯",type:"21002",ico:"escalator.png",en:""},
-    {name:"女洗手间",type:"11003",ico:"Female.png",en:""},
-    {name:"问讯处",type:"31001",ico:"inquiry.png",en:""},
-    {name:"直梯",type:"21003",ico:"lift.png",en:""},
-    {name:"补妆间",type:"31002",ico:"Makeup.png",en:""},
-    {name:"男洗手间",type:"11002",ico:"Male.png",en:""},
-    {name:"母婴室",type:"11004",ico:"MomBaby.png",en:""},
-    {name:"楼梯",type:"21001",ico:"stair.png",en:""},
-    {name:"洗手间",type:"11001",ico:"toilet.png",en:""}
+    {name:"残障洗手间",type:"11005",ico:"crippled.png",en:"",searchShow:true},
+    {name:"出入口",type:"31004",ico:"entry.png",en:"",searchShow:true},
+    {name:"扶梯",type:"21002",ico:"escalator.png",en:"",searchShow:true},
+    {name:"女洗手间",type:"11003",ico:"Female.png",en:"",searchShow:true},
+    {name:"问讯处",type:"31001",ico:"inquiry.png",en:"",searchShow:true},
+    {name:"直梯",type:"21003",ico:"lift.png",en:"",searchShow:true},
+    {name:"补妆间",type:"31002",ico:"Makeup.png",en:"",searchShow:true},
+    {name:"男洗手间",type:"11002",ico:"Male.png",en:"",searchShow:true},
+    {name:"母婴室",type:"11004",ico:"MomBaby.png",en:"",searchShow:true},
+    {name:"楼梯",type:"21001",ico:"stair.png",en:"",searchShow:true},
+    {name:"洗手间",type:"11001",ico:"toilet.png",en:"",searchShow:true}
 ];
 
 

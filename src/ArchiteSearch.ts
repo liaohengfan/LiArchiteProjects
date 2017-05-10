@@ -235,8 +235,11 @@ class ArchiteSearch{
             .text("公共服务点");
         var pubContainer_=this.pubPointContainer.append("div")
             .attr("class","form-group row");
+
+        var pubPoints_=_.filter(ICON_TYPE_CHECK,{searchShow:true});
+
         var items_=pubContainer_.selectAll("div")
-            .data(ICON_TYPE_CHECK)
+            .data(pubPoints_)
             .enter()
             .append("div")
             .attr("class","SearchPubPointItem")

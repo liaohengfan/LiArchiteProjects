@@ -12,18 +12,15 @@ var rename = require('gulp-rename');
 
 // 检查脚本
 gulp.task('lint', function() {
-    gulp.src('./alljs/*.js')
+    gulp.src('./src/*.js')
         .pipe(jshint())
         .pipe(jshint.reporter('default'));
 });
 // 合并，压缩文件
 gulp.task('scripts', function() {
-    gulp.src('./alljs/*.js')
-        .pipe(concat('liArchiteAll.js'))
-        .pipe(gulp.dest('./build'))
-        .pipe(rename({suffix: '.min'}))   //rename压缩后的文件名
-        .pipe(uglify())    //压缩
-        .pipe(gulp.dest('./build'))
+    gulp.src('./src/*.js')
+        .pipe(concat('liArchite.js'))
+        .pipe(gulp.dest('./build'));
 });
 
 // 默认任务
