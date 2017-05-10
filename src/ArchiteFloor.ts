@@ -332,8 +332,8 @@ class ArchiteFloor{
                         //fontface: "Roboto"
                 });
 
-                //var translate_=(label_.contentWidth-100)/3;
-                //positionVec3.x+=20;
+                var translate_=(100-label_.contentWidth)/2;
+                positionVec3.x+=translate_;
                 //positionVec3.y+=translate_;
                 label_.lockX=positionVec3.x;
                 label_.lockY=positionVec3.y;

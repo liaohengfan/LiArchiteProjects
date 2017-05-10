@@ -53,6 +53,7 @@ function init(){
 
     /**     * ui     */
     var uimana_=new ArchiteUI(document.getElementById("lhf_archite_ui_container"),architeMain_.architewebgl);
+    uimana_.createFloorNameLabel();//创建楼层名称显示
     uimana_.openScale();//开启缩放
     uimana_.openSearch();//开启搜索
     uimana_.search.searchNullPrompt="本馆未找到，请尝试全馆搜索！";//未搜索提示框

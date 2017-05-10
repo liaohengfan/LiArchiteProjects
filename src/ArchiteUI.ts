@@ -28,6 +28,7 @@ class ArchiteUI{
         this.appendUIStyle(".architeSearchContainer{position:absolute;top:0;left:0;z-index:100;padding:0;margin:0;background:#FFF;}");
         this.appendUIStyle(".SearchPubPointItem{width:100px;margin:5px;float:left;}");
         if(IsPC()){
+            this.appendUIStyle(".nameLabelContainer{position:absolute;left:5vw;top:1vw;}");
             this.appendUIStyle(".architeScaleContainer{position:absolute;top:1vw;left:1vw;width:36px;}");
             this.appendUIStyle(".scaleBtn{width:100%;height:36px;padding:0;margin:0;}");
             this.appendUIStyle(".architeSearchDiv{position:absolute;right:1vw;top:1vw;}");
@@ -42,6 +43,7 @@ class ArchiteUI{
             this.appendUIStyle(".architeBackgroundColorChange {width: 7vw;height: 2vw;padding-right: 2vw;}");
             this.appendUIStyle(".webgl_backgroundColor{float:right;width:1vw;background:#f1f2f7;height:1vw;margin-right: 1.8vw;border:1px solid #000;");
         }else{
+            this.appendUIStyle(".nameLabelContainer{position:absolute;left:45px;top:12px;}");
             this.appendUIStyle(".architeScaleContainer{position:absolute;top:10px;left:10px;width:30px;}");
             this.appendUIStyle(".scaleBtn{width:100%;height:30px;padding:0;margin:0;}");
             this.appendUIStyle(".architeSearchDiv{position:absolute;right:1vw;top:1vw;}");
@@ -128,6 +130,22 @@ class ArchiteUI{
         this.createFloorsBtn(archite_);
         if(this.search){
             this.search.bindArchite(archite_);
+        }
+    }
+
+    /**     * 名字标签     */
+    nameLabelContainer:any=null;
+    nameLabel:any=null;
+    createFloorNameLabel(){
+        this.nameLabelContainer=d3.select(this.domContainer).append("div");
+        this.nameLabelContainer.attr("class","nameLabelContainer");
+        this.nameLabel=this.nameLabelContainer.append("label");
+        this.nameLabel.attr("class","btn btn-sm btn-info");
+    }
+
+    setFloorNameLabel(name_:string){
+        if(this.nameLabel){
+            this.nameLabel.text(name_||" ");
         }
     }
 
@@ -288,6 +306,8 @@ class ArchiteUI{
 
     /**         * 创建楼层管理         */
     private createFloorsBtn(archite_:ArchiteBase){
+
+        archite_.uiMana_=this;
 
         //不创建楼层按钮
         if(!this.floorsBtnEnabled)return;

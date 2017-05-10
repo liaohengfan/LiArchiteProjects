@@ -111,6 +111,10 @@ class ArchiteBase{
     /**         * 楼层         */
     architeFloors=[];
 
+
+    /**     * UI mana     */
+    uiMana_:ArchiteUI=null;
+
     /**         * 轮廓模型         */
     buildingOutLine:THREE.Object3D=null;
     buildingOutLineShow=false;
@@ -145,7 +149,8 @@ class ArchiteBase{
         }else if (_.findWhere(this.oriData.Floors, {_id: default_})) {
                 returnFloors_ = default_;
         }else {
-                returnFloors_ = _.first(this.oriData.Floors)._id || "";
+                //returnFloors_ = _.first(this.oriData.Floors)._id || "";
+                returnFloors_ = "";
         }
         return returnFloors_;
     }
@@ -290,6 +295,9 @@ class ArchiteBase{
             this.ArchiteIcon.add(selectFloors.getFuncAreasLabel(this.funcareaLabelShow));
         }
 
+        if(this.uiMana_){
+            this.uiMana_.setFloorNameLabel(selectFloors.floorData.Name||" - ")
+        }
         return selectFloors;
 
     }
@@ -334,6 +342,9 @@ class ArchiteBase{
     /**         * 显示所有楼层         */
     showAllFloors(){
         var that_=this;
+        if(that_.uiMana_){
+            that_.uiMana_.setFloorNameLabel("All");
+        }
         _.map(that_.oriData.Floors||[],function(floor_,index_){
             var curFloor_=_.findWhere(that_.architeFloors,{archite_id:floor_._id});
             if(curFloor_){//楼层存在则显示

@@ -537,7 +537,7 @@ class ArchiteWebGL{
     /**     * 摄像头聚焦     */
     cameraLookPoint(vec3_:THREE.Vector3){
         var that_=this;
-
+        this.perspectiveControl.reset();
         console.log(vec3_);
         var y_=vec3_.y;
         vec3_.copy(this.perspectiveControl.target0);
@@ -553,6 +553,7 @@ class ArchiteWebGL{
         //newPoint_.addVectors(this.defalutCameraPosition,vec3_);
         newPoint_.copy(this.defalutCameraPosition);
         newPoint_.y+=vec3_.y;
+        that_.camera.position.y=newPoint_.y;
 
         that_.curCameraPosition.copy(that_.camera.position);
         that_.defalutCameraTween.stop();

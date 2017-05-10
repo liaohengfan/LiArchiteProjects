@@ -58,7 +58,7 @@ class ArchiteData{
          * @private
          */
         var newArchite_=new ArchiteBase(data_.data,this.is3D,this.resources);
-
+        newArchite_.uiMana_=this.ui;
         /**             * 更新建筑信息             */
         this.webgl.updateMapByArchiteBase(newArchite_);
         this.ui.updataUIByArchiteBase(newArchite_);

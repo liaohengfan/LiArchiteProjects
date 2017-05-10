@@ -171,8 +171,9 @@ function makeTextSprite( message, parameters )
     //sprite.scale.set(200,50,1.0);
     sprite.scale.set(100,50,1.0);
     //sprite.scale.set(metrics.width,50,1.0);
+    console.log(canvas.width);
     sprite.width = metrics.width/3;
-    sprite.contentWidth=metrics.width;
+    sprite.contentWidth=metrics.width/3;
     sprite.height = fontsize*0.8;
     return sprite;
 }
